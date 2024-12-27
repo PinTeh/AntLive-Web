@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from "vue"
+import { useWebStore } from "@/stores/web"
+const store = useWebStore()
 
 defineProps({
   msg: String,
@@ -9,6 +11,7 @@ const count = ref(0)
 </script>
 
 <template>
+  <h1>{{ store.user.nickName }}</h1>
   <h1>{{ msg }}</h1>
 
   <div class="card">
