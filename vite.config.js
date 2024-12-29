@@ -26,6 +26,13 @@ export default defineConfig((mode) => {
         }
       ]
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "@/styles/index.scss";`
+        }
+      }
+    },
     server: {
       host: 'localhost',
       port: Number(env.VITE_APP_PORT),
