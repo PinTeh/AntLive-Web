@@ -1,18 +1,15 @@
-<script setup>
-import Footer from "@/components/Footer.vue"
-</script>
+<script setup></script>
 
 <template>
   <a-config-provider
     :theme="{
       token: {
         // colorPrimary: '#00b96b',
-        // borderRadiuos: '1px',
+        borderRadius: '0px',
       },
     }">
     <RouterView />
-    <Footer></Footer>
   </a-config-provider>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss"></style>

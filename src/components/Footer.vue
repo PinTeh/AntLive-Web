@@ -6,17 +6,14 @@ const handleClick = () => {
 
 <template>
   <div class="footer">
-    <span @click="handleClick()">桂ICP备18010581号-1</span>
+    <span @click="handleClick()">Copyright © 2025 Ant-Live 版权所有 · 桂ICP备18010581号-1</span>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .footer {
   height: 30px;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  text-align: center;
   span {
     line-height: 30px;
     font-size: 10px;

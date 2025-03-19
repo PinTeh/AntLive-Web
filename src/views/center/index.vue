@@ -1,5 +1,4 @@
 <script setup>
-import Header from "@/components/Header.vue"
 import { MailOutlined, AppstoreOutlined, SettingOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { useRouter } from "vue-router"
@@ -109,7 +108,6 @@ const items = ref([
 ])
 </script>
 <template>
-  <Header></Header>
   <div class="wrapper">
     <div class="portrait">
       <img draggable="false" :src="userInfo.avatar" width="80" height="80" />
