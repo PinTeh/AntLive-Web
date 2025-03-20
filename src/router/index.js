@@ -77,6 +77,14 @@ const routes = [
                         path: "comment",
                         component: () => import("@/views/center/comment/index.vue"),
                     },
+                    {
+                        path: "recharge",
+                        component: () => import("@/views/center/recharge/index.vue"),
+                    },
+                    {
+                        path: "bill",
+                        component: () => import("@/views/center/bill/index.vue"),
+                    },
                 ],
             },
         ],

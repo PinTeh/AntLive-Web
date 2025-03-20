@@ -1,6 +1,5 @@
 <template>
   <div class="main">
-
     <!-- <div class="content-wrapper">
       <div class="content">
         <LiveRoom></LiveRoom>

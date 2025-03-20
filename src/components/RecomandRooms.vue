@@ -38,6 +38,7 @@ const handleMoreClick = () => {}
       height: 25px;
       width: 25px;
       margin: 0px 5px;
+      border-radius: 50%;
     }
     h1[title] {
       display: inline;

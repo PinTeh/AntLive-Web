@@ -1,5 +1,5 @@
 import axios from 'axios'
-// import useStore from '@/store'
+import { useStore } from "@/stores"
 import { Modal, message } from 'ant-design-vue';
 import { createVNode } from 'vue';
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
@@ -19,11 +19,12 @@ service.interceptors.request.use((config) => {
             `Expected 'config' and 'config.headers' not to be undefined`
         );
     }
-    // const { user } = useStore();
-    // if (user.token) {
-    //     // 授权认证
-    //     config.headers.Authorization = user.token;
-    // }
+    const store = useStore()
+    const userToken = store.user().userToken
+    if (userToken) {
+        // 授权认证
+        config.headers.Authorization = userToken;
+    }
     return config;
 }, (error) => {
     return Promise.reject(error);
@@ -52,8 +53,6 @@ service.interceptors.response.use((response) => {
                 },
                 onCancel() { },
             });
-
-
         } else {
             // 系统异常
             message.error(msg || 'This is an error message', 5);

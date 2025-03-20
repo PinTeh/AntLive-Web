@@ -23,12 +23,12 @@
       </a-descriptions>
     </a-card>
     <div class="right">
-      <a-card title="安全设置" class="security-settings">
+      <a-card title="账号安全" class="security-settings">
         <p>Card content</p>
         <p>Card content</p>
         <p>Card content</p>
       </a-card>
-      <a-card title="其他信息" class="other-account">
+      <a-card title="实名认证" class="other-account">
         <p>Card content</p>
         <p>Card content</p>
         <p>Card content</p>
@@ -43,7 +43,6 @@ import { useStore } from "@/stores"
 
 const store = useStore()
 const userInfo = store.user().userInfo
-console.log(userInfo)
 </script>
 
 <style lang="scss" scoped>
@@ -85,6 +84,9 @@ console.log(userInfo)
       font-size: 14px;
       color: $font-color;
     }
+  }
+  ::v-deep .ant-card-head {
+    background: linear-gradient(180deg, #e8f4ff80, #fff0);
   }
 }
 </style>

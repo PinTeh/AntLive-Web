@@ -28,21 +28,6 @@ const items = ref([
         title: "个人信息",
       },
       {
-        key: "security",
-        label: "账号安全",
-        title: "账号安全",
-      },
-      {
-        key: "identify",
-        label: "实名认证",
-        title: "实名认证",
-      },
-      {
-        key: "wallet",
-        label: "我的钱包",
-        title: "我的钱包",
-      },
-      {
         key: "follow",
         label: "我的关注",
         title: "我的关注",
@@ -74,6 +59,29 @@ const items = ref([
         key: "live-boss",
         label: "我的大哥",
         title: "我的大哥",
+      },
+    ],
+  },
+  {
+    key: "3",
+    icon: () => h(AppstoreOutlined),
+    label: "我的钱包",
+    title: "我的钱包",
+    children: [
+      {
+        key: "wallet",
+        label: "我的钱包",
+        title: "我的钱包",
+      },
+      {
+        key: "recharge",
+        label: "购买金币",
+        title: "购买金币",
+      },
+      {
+        key: "bill",
+        label: "交易记录",
+        title: "交易记录",
       },
     ],
   },
@@ -112,9 +120,9 @@ const items = ref([
     <div class="portrait">
       <img draggable="false" :src="userInfo.avatar" width="80" height="80" />
       <div class="info">
-        <h1>{{ userInfo.nickName || "User" }}</h1>
-        <h4>lv6</h4>
-        <h4>UID:{{ userInfo.userId }}</h4>
+        <span nick-name>{{ userInfo.nickName || "User" }}</span>
+        <span level>lv6</span>
+        <span uid>UID{{ userInfo.userId }}</span>
       </div>
     </div>
     <div class="content-wrapper">
@@ -152,6 +160,21 @@ const items = ref([
     }
     .info {
       color: $font-color;
+      font-weight: 400;
+      span[nick-name] {
+        font-weight: 400;
+        font-size: 20px;
+      }
+      span[level] {
+        display: block;
+        font-size: 12px;
+        line-height: 25px;
+      }
+      span[uid] {
+        display: block;
+        font-size: 14px;
+        line-height: 25px;
+      }
     }
   }
   .portrait:hover {
