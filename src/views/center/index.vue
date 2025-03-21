@@ -3,21 +3,26 @@ import { MailOutlined, AppstoreOutlined, SettingOutlined } from "@ant-design/ico
 import { useStore } from "@/stores"
 import { useRouter } from "vue-router"
 
-import { h, ref } from "vue"
+import { h, onMounted, ref } from "vue"
 
 const store = useStore()
 const route = useRouter()
 const userInfo = store.user().userInfo
 
+onMounted(() => {
+  const path = route.currentRoute.value.path.split("/").slice(-2)
+  current.value = path.length === 2 ? path : ["personnel", "profile"]
+})
+
 const handleClick = (e) => {
-  console.log("click", e)
   current.value = e.keyPath
-  route.push("/center/" + e.key)
+  route.push("/center/" + e.keyPath[0] + "/" + e.keyPath[1])
 }
-const current = ref(["1", "profile"])
+
+const current = ref(["personnel", "profile"])
 const items = ref([
   {
-    key: "1",
+    key: "personnel",
     icon: () => h(MailOutlined),
     label: "个人中心",
     title: "个人中心",
@@ -40,7 +45,7 @@ const items = ref([
     ],
   },
   {
-    key: "2",
+    key: "live",
     icon: () => h(AppstoreOutlined),
     label: "我的直播间",
     title: "我的直播间",
@@ -63,7 +68,7 @@ const items = ref([
     ],
   },
   {
-    key: "3",
+    key: "dollar",
     icon: () => h(AppstoreOutlined),
     label: "我的钱包",
     title: "我的钱包",
@@ -86,7 +91,7 @@ const items = ref([
     ],
   },
   {
-    key: "4",
+    key: "statistic",
     icon: () => h(SettingOutlined),
     label: "直播数据",
     title: "直播数据",

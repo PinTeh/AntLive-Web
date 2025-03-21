@@ -1,7 +1,10 @@
 <template>
   <div class="item">
-    <span>{{ name }}</span>
-    <img :src="todo" alt="" />
+    <img class="cover" :src="cover" alt="" />
+    <div class="info">
+      <img class="avatar" :src="cover" alt="" />
+      <span>{{ name || "未知主播" }}</span>
+    </div>
   </div>
 </template>
 
@@ -14,22 +17,35 @@ const propsObj = defineProps({
 
 <style lang="scss" scoped>
 .item {
-  height: 140px;
+  height: 165px;
   width: 242px;
-  // border: 1px solid blue;
-  position: relative;
-  img {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border: 1px solid #f0f0f0;
+  .cover {
     width: 100%;
-    height: 100%;
+    height: 135px;
     object-fit: cover;
   }
-  span {
-    position: absolute;
-    bottom: 0;
-    color: #fff;
+  .info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    .avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin: 0px 5px;
+    }
+    span {
+      color: $font-color;
+    }
   }
 }
-.item :hover {
-  transition: all 0.8s;
+.item:hover {
+  transition: all 0.3s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 </style>

@@ -23,18 +23,26 @@ const routes = [
                 path: "/center",
                 component: () => import("@/views/center/index.vue"),
                 meta: { title: "个人中心", icon: "dashboard", hidden: false },
-                redirect: "/center/profile",
+                redirect: "/center/personnel/profile",
                 children: [
+                    {
+                        path: "personnel/profile",
+                        component: () => import("@/views/center/profile/index.vue"),
+                    },
+                    {
+                        path: "personnel/follow",
+                        component: () => import("@/views/center/follow/index.vue"),
+                    },
+                    {
+                        path: "personnel/history",
+                        component: () => import("@/views/center/view-history/index.vue"),
+                    },
                     {
                         path: "security",
                         component: () => import("@/views/center/security/index.vue"),
                     },
                     {
-                        path: "profile",
-                        component: () => import("@/views/center/profile/index.vue"),
-                    },
-                    {
-                        path: "wallet",
+                        path: "dollar/wallet",
                         component: () => import("@/views/center/wallet/index.vue"),
                     },
                     {
@@ -46,33 +54,27 @@ const routes = [
                         component: () => import("@/views/center/overview/index.vue"),
                     },
                     {
-                        path: "live-settings",
+                        path: "live/live-settings",
                         component: () => import("@/views/center/live-settings/index.vue"),
                     },
                     {
-                        path: "live-info",
+                        path: "live/live-info",
                         component: () => import("@/views/center/live-info/index.vue"),
                     },
                     {
-                        path: "live-boss",
+                        path: "live/live-boss",
                         component: () => import("@/views/center/live-boss/index.vue"),
                     },
                     {
                         path: "identify",
                         component: () => import("@/views/center/identify/index.vue"),
                     },
-                    {
-                        path: "history",
-                        component: () => import("@/views/center/view-history/index.vue"),
-                    },
+
                     {
                         path: "gift-list",
                         component: () => import("@/views/center/gift-list/index.vue"),
                     },
-                    {
-                        path: "follow",
-                        component: () => import("@/views/center/follow/index.vue"),
-                    },
+
                     {
                         path: "comment",
                         component: () => import("@/views/center/comment/index.vue"),
