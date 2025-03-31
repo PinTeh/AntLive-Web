@@ -30,12 +30,17 @@ export const useUserStore = defineStore('user', () => {
         window.sessionStorage.clear();
         location.reload();
     }
+    // 更新用户头像
+    function updateAvatar(avatar) {
+        userInfo.value.avatar = avatar
+    }
     return {
         userInfo,
         userToken,
         isLogin,
         login,
-        logout
+        logout,
+        updateAvatar
     }
 }, {
     persist: true,
