@@ -42,11 +42,11 @@
       </a-descriptions>
     </a-card>
     <div class="right">
-      <a-card title="账号安全" class="security-settings"> <SecurityItem /> </a-card>
-      <a-card title="实名认证" class="other-account">
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
+      <a-card title="账号安全" class="security-settings">
+        <SecurityItem />
+      </a-card>
+      <a-card title="信息认证" class="other-account">
+        <Authentication />
       </a-card>
     </div>
   </div>
@@ -54,6 +54,7 @@
 
 <script setup>
 import SecurityItem from "./SecurityItem.vue"
+import Authentication from "./Authentication.vue"
 import { UserOutlined, MessageOutlined, IdcardOutlined, PlusOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { message } from "ant-design-vue"
@@ -146,7 +147,6 @@ const beforeUpload = (file) => {
     flex-direction: column;
     margin-left: 15px;
     .security-settings {
-      // height: 200px;
       background-color: #fff;
       ::v-deep .ant-card-body {
         padding: 0px;
@@ -154,8 +154,10 @@ const beforeUpload = (file) => {
     }
     .other-account {
       margin-top: 25px;
-      height: 200px;
       background-color: #fff;
+      ::v-deep .ant-card-body {
+        padding: 0px;
+      }
     }
   }
   .label-with-icon {

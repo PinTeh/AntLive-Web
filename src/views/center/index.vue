@@ -51,14 +51,14 @@ const items = ref([
     title: "我的直播间",
     children: [
       {
-        key: "live-info",
-        label: "直播信息",
-        title: "直播信息",
-      },
-      {
         key: "live-settings",
         label: "开播设置",
         title: "开播设置",
+      },
+      {
+        key: "live-info",
+        label: "直播信息",
+        title: "直播信息",
       },
       {
         key: "live-boss",

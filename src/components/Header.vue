@@ -53,7 +53,7 @@ const handleLogout = () => {
       </div>
       <div class="right-nav-container">
         <div class="nav-span" v-if="!isLogin" href="#" @click="handleLogin">登录</div>
-        <a-dropdown v-else @command="handleCommand">
+        <a-dropdown v-else>
           <span class="nav-span" href="#" @click="handleClick">
             <span class="nav-span-content">
               <img class="header-avatar" :src="userInfo?.avatar" />

@@ -34,5 +34,46 @@ export default {
             url: '/api/v1/watch/history/clear',
             method: 'post'
         })
-    }
+    },
+    /**
+     * 获取直播间信息
+     * @param {*} params
+     * @returns 
+     */
+    getRoomSettingsInfo() {
+        return request({
+            url: '/api/v1/room/setting/info',
+            method: 'get',
+        })
+    },
+    getLiveStatus() {
+        return request({
+            url: '/api/v1/live/getLiveStatus',
+            method: 'get',
+        })
+    },
+    applySecret() {
+        return request({
+            url: '/api/v1/live/applySecret',
+            method: 'post',
+        })
+    },
+    stopLive() {
+        return request({
+            url: '/api/v1/live/stopLive',
+            method: 'post',
+        })
+    },
+    /**
+     * 保存直播间信息
+     * @param {*} data
+     * @returns
+     */
+    saveRoomInfo(data) {
+        return request({
+            url: '/api/v1/room/info/save',
+            method: 'post',
+            data,
+        })
+    },
 } 
