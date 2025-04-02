@@ -46,11 +46,11 @@ const routes = [
                         component: () => import("@/views/center/wallet/index.vue"),
                     },
                     {
-                        path: "punishment",
+                        path: "statistic/punishment",
                         component: () => import("@/views/center/punishment/index.vue"),
                     },
                     {
-                        path: "overview",
+                        path: "statistic/overview",
                         component: () => import("@/views/center/overview/index.vue"),
                     },
                     {
@@ -58,33 +58,24 @@ const routes = [
                         component: () => import("@/views/center/live-settings/index.vue"),
                     },
                     {
-                        path: "live/live-info",
-                        component: () => import("@/views/center/live-info/index.vue"),
-                    },
-                    {
-                        path: "live/live-boss",
-                        component: () => import("@/views/center/live-boss/index.vue"),
-                    },
-                    {
                         path: "identify",
                         component: () => import("@/views/center/identify/index.vue"),
                     },
 
                     {
-                        path: "gift-list",
+                        path: "statistic/gift-list",
                         component: () => import("@/views/center/gift-list/index.vue"),
                     },
-
                     {
-                        path: "comment",
+                        path: "statistic/comment",
                         component: () => import("@/views/center/comment/index.vue"),
                     },
                     {
-                        path: "recharge",
+                        path: "dollar/recharge",
                         component: () => import("@/views/center/recharge/index.vue"),
                     },
                     {
-                        path: "bill",
+                        path: "dollar/bill",
                         component: () => import("@/views/center/bill/index.vue"),
                     },
                 ],

@@ -76,4 +76,15 @@ export default {
             data,
         })
     },
+    getLiveStatInfo(page, limit, dateRange) {
+        return request({
+            url: '/live/info/list',
+            method: 'get',
+            params: {
+                page,
+                limit,
+                dateRange,
+            },
+        })
+    },
 } 

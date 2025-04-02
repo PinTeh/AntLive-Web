@@ -25,20 +25,32 @@
           <template #label>
             <div><IdcardOutlined /><span>ID</span></div>
           </template>
-          {{ userInfo.userId || "" }}
+          <span val>{{ userInfo.userId || "" }}</span>
         </a-descriptions-item>
         <a-descriptions-item class="label-with-icon">
           <template #label>
             <div><UserOutlined /><span>昵称</span></div>
           </template>
-          {{ userInfo.nickName || "" }}
+          <span val>{{ userInfo.nickName || "" }}</span>
         </a-descriptions-item>
         <a-descriptions-item class="label-with-icon">
           <template #label>
             <div><MessageOutlined /><span>签名</span></div>
           </template>
-          {{ userInfo.signature || "这个人很懒，什么都没留下" }}
+          <span val>{{ userInfo.signature || "这个人很懒，什么都没留下" }}</span>
         </a-descriptions-item>
+        <!-- <a-descriptions-item class="label-with-icon">
+          <template #label>
+            <div><MobileOutlined /><span>手机</span></div>
+          </template>
+          <span val>{{ userInfo.mobile || "--" }}</span>
+        </a-descriptions-item>
+        <a-descriptions-item class="label-with-icon">
+          <template #label>
+            <div><MailOutlined /><span>邮箱</span></div>
+          </template>
+          <span val>{{ userInfo.email || "--" }}</span>
+        </a-descriptions-item> -->
       </a-descriptions>
     </a-card>
     <div class="right">
@@ -55,7 +67,7 @@
 <script setup>
 import SecurityItem from "./SecurityItem.vue"
 import Authentication from "./Authentication.vue"
-import { UserOutlined, MessageOutlined, IdcardOutlined, PlusOutlined } from "@ant-design/icons-vue"
+import { UserOutlined, MessageOutlined, IdcardOutlined, PlusOutlined, MailOutlined, MobileOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { message } from "ant-design-vue"
 import { computed, onMounted, ref } from "vue"
@@ -167,6 +179,9 @@ const beforeUpload = (file) => {
       margin-left: 5px;
       font-size: 14px;
       color: $font-color;
+    }
+    span[val] {
+      color: $font-color-light;
     }
   }
   ::v-deep .ant-card-head {

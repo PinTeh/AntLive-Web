@@ -1,5 +1,5 @@
 <script setup>
-import { MailOutlined, AppstoreOutlined, SettingOutlined } from "@ant-design/icons-vue"
+import { MailOutlined, AppstoreOutlined, WalletOutlined, PlaySquareOutlined, BarChartOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { useRouter } from "vue-router"
 
@@ -46,7 +46,7 @@ const items = ref([
   },
   {
     key: "live",
-    icon: () => h(AppstoreOutlined),
+    icon: () => h(PlaySquareOutlined),
     label: "我的直播间",
     title: "我的直播间",
     children: [
@@ -55,21 +55,11 @@ const items = ref([
         label: "开播设置",
         title: "开播设置",
       },
-      {
-        key: "live-info",
-        label: "直播信息",
-        title: "直播信息",
-      },
-      {
-        key: "live-boss",
-        label: "我的大哥",
-        title: "我的大哥",
-      },
     ],
   },
   {
     key: "dollar",
-    icon: () => h(AppstoreOutlined),
+    icon: () => h(WalletOutlined),
     label: "我的钱包",
     title: "我的钱包",
     children: [
@@ -80,8 +70,8 @@ const items = ref([
       },
       {
         key: "recharge",
-        label: "购买金币",
-        title: "购买金币",
+        label: "购买果子",
+        title: "购买果子",
       },
       {
         key: "bill",
@@ -92,7 +82,7 @@ const items = ref([
   },
   {
     key: "statistic",
-    icon: () => h(SettingOutlined),
+    icon: () => h(BarChartOutlined),
     label: "直播数据",
     title: "直播数据",
     children: [
@@ -125,9 +115,13 @@ const items = ref([
     <div class="portrait">
       <img draggable="false" :src="userInfo.avatar" width="80" height="80" />
       <div class="info">
-        <span nick-name>{{ userInfo.nickName || "User" }}</span>
-        <span level>lv6</span>
-        <span uid>UID{{ userInfo.userId }}</span>
+        <a-flex align="center">
+          <span nick-name>{{ userInfo.nickName || "Hello World" }}</span>
+          <svg class="level-icon" aria-hidden="true">
+            <use xlink:href="#icon-ic_userlevel_5"></use>
+          </svg>
+        </a-flex>
+        <span uid>{{ userInfo.signature || "这个人很懒，什么都没留下" }}</span>
       </div>
     </div>
     <div class="content-wrapper">
@@ -147,7 +141,7 @@ const items = ref([
   margin: 0 auto;
   .portrait {
     width: 1300px;
-    height: 180px;
+    height: 160px;
     margin: 20px 0px 0px 0px;
     display: flex;
     align-items: center;
@@ -163,22 +157,27 @@ const items = ref([
       border: 1px solid rgba(205, 205, 205, 0.5);
       margin: 0px 20px;
     }
+    img:hover {
+      border: 1px solid rgba(118, 118, 118, 0.5);
+    }
     .info {
       color: $font-color;
       font-weight: 400;
+      .level-icon {
+        height: 25px;
+        width: 30px;
+        margin-left: 5px;
+      }
       span[nick-name] {
         font-weight: 400;
         font-size: 20px;
-      }
-      span[level] {
-        display: block;
-        font-size: 12px;
-        line-height: 25px;
+        line-height: 20px;
       }
       span[uid] {
+        margin-top: 10px;
         display: block;
         font-size: 14px;
-        line-height: 25px;
+        color: $font-color-light;
       }
     }
   }
@@ -190,7 +189,8 @@ const items = ref([
   .content-wrapper {
     display: flex;
     align-items: flex-start;
-    margin-top: 30px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     .menu-wrapper {
       width: 200px;
     }

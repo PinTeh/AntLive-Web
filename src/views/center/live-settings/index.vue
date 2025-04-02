@@ -181,15 +181,14 @@ const getLiveStatus = () => {
  * @returns {Promise<void>}
  */
 const startLive = () => {
-  modalOpen.value = true
-  // liveAPI.applySecret().then((res) => {
-  //   if (res.code === 0) {
-  //     message.success("直播已开始")
-  //     getLiveStatus()
-  //   } else {
-  //     message.error(res.msg)
-  //   }
-  // })
+  liveAPI.applySecret().then((res) => {
+    if (res.code === 0) {
+      message.success("直播已开始")
+      getLiveStatus()
+    } else {
+      message.error(res.msg)
+    }
+  })
 }
 
 /**
@@ -199,7 +198,7 @@ const startLive = () => {
 const stopLive = () => {
   liveAPI.stopLive().then((res) => {
     if (res.code === 0) {
-      message.success("直播已停止")
+      modalOpen.value = true
       getLiveStatus()
     } else {
       message.error(res.msg)

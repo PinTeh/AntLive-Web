@@ -1,0 +1,24 @@
+import request from '@/utils/request'
+
+export default {
+    /**
+     * 获取钱包信息
+     * @returns 
+     */
+    getBalance() {
+        return request({
+            url: '/api/v1/wallet/getBalance',
+            method: 'get'
+        })
+    },
+    /**
+     * 获取钱包明细
+     * @returns 
+     */
+    listRecentWalletLogs() {
+        return request({
+            url: '/api/v1/wallet/listRecentWalletLogs',
+            method: 'get'
+        })
+    }
+}
