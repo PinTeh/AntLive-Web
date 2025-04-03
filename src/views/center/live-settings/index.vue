@@ -44,10 +44,14 @@
           <a-flex>
             <a-descriptions :column="1">
               <a-descriptions-item label="直播推流地址">
-                <span class="link" title="">{{ roomLiveInfo.livePushUrl }}</span>
+                <a-typography-paragraph :copyable="{ tooltip: false }">
+                  <span class="link" title="">{{ roomLiveInfo.livePushUrl }}</span>
+                </a-typography-paragraph>
               </a-descriptions-item>
               <a-descriptions-item label="直播推流密钥">
-                <span class="link" title="">{{ roomLiveInfo.livePushSecret || "--" }}</span>
+                <a-typography-paragraph :copyable="{ tooltip: false }">
+                  <span class="link" title="">{{ roomLiveInfo.livePushSecret || "--" }}</span>
+                </a-typography-paragraph>
               </a-descriptions-item>
             </a-descriptions>
             <a-button v-if="roomLiveInfo.liveStatus === 0" type="primary" size="large" @click="startLive">
@@ -295,6 +299,9 @@ const onFinishFailed = (errorInfo) => {
       font-weight: 500;
       color: #666;
       cursor: pointer;
+    }
+    ::v-deep .ant-typography {
+      margin-bottom: 0px;
     }
   }
   .config-wrapper {

@@ -23,7 +23,7 @@
           <h4>如何获得开心果？</h4>
           <p>
             充钱
-            <a href="#" @click="">立即充值</a>
+            <a @click="gotoCharge">立即充值</a>
           </p>
           <h4>如何将开心果提现？</h4>
           <p>
@@ -39,13 +39,19 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import walletApi from "@/api/wallet"
+import { useRouter } from "vue-router"
 
+const route = useRouter()
 const balance = ref(0)
 
 onMounted(() => {
   getBalance()
   listLogs()
 })
+
+const gotoCharge = () => {
+  route.push("/center/dollar/recharge")
+}
 
 /**
  * 获取钱包余额

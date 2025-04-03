@@ -20,5 +20,16 @@ export default {
             url: '/api/v1/wallet/listRecentWalletLogs',
             method: 'get'
         })
+    },
+    /**
+     * 获取钱包明细
+     * @returns 
+     */
+    listWalletLogs(params) {
+        return request({
+            url: '/api/v1/wallet/listWalletLogs',
+            method: 'get',
+            params
+        })
     }
 }
