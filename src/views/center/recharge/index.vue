@@ -117,7 +117,7 @@ const handleItemClick = (item) => {
     }
   }
   .agreement {
-    margin: 15px 0px;
+    margin: 25px 0px 15px 0px;
     color: $font-color-light;
   }
 }

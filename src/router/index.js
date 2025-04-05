@@ -20,6 +20,11 @@ const routes = [
                 meta: { title: "首页", icon: "dashboard", hidden: false }
             },
             {
+                path: "/room",
+                component: () => import("@/views/room/index.vue"),
+                meta: { title: "直播间", icon: "dashboard", hidden: false }
+            },
+            {
                 path: "/center",
                 component: () => import("@/views/center/index.vue"),
                 meta: { title: "个人中心", icon: "dashboard", hidden: false },

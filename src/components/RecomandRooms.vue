@@ -1,7 +1,13 @@
 <script setup>
 import LiveRoom from "@/components/LiveRoom.vue"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
 
 const handleMoreClick = () => {}
+const roomClick = () => {
+  router.push({ path: "/room" })
+}
 </script>
 
 <template>
@@ -14,10 +20,10 @@ const handleMoreClick = () => {}
       <span @click="handleMoreClick">更多</span>
     </div>
     <div class="content">
-      <LiveRoom></LiveRoom>
-      <LiveRoom></LiveRoom>
-      <LiveRoom></LiveRoom>
-      <LiveRoom></LiveRoom>
+      <LiveRoom @click="roomClick"></LiveRoom>
+      <LiveRoom @click="roomClick"></LiveRoom>
+      <LiveRoom @click="roomClick"></LiveRoom>
+      <LiveRoom @click="roomClick"></LiveRoom>
     </div>
   </div>
 </template>
