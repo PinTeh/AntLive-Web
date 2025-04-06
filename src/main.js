@@ -5,6 +5,8 @@ import { createPinia } from 'pinia'
 import routers from '@/router'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import '@/assets/icons/iconfont.js'
+import vueInfiniteScroll from 'vue-infinite-scroll'
+
 
 // import '@/styles/index.scss'
 
@@ -20,5 +22,6 @@ pinia.use(({ store }) => {
 
 const app = createApp(App)
 app.use(pinia)
+app.use(vueInfiniteScroll)
 app.use(routers)
 app.mount('#app')

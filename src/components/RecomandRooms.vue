@@ -6,7 +6,7 @@ const router = useRouter()
 
 const handleMoreClick = () => {}
 const roomClick = () => {
-  router.push({ path: "/room" })
+  router.push({ path: "/room/1" })
 }
 </script>
 

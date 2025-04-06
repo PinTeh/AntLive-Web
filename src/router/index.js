@@ -20,7 +20,7 @@ const routes = [
                 meta: { title: "首页", icon: "dashboard", hidden: false }
             },
             {
-                path: "/room",
+                path: "/room/:id",
                 component: () => import("@/views/room/index.vue"),
                 meta: { title: "直播间", icon: "dashboard", hidden: false }
             },

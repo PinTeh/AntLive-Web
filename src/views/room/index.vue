@@ -19,7 +19,7 @@
           </div>
         </a-flex>
         <div class="room-play-main">
-          <Play ref="playChild" />
+          <Player ref="playChild" />
         </div>
         <a-flex class="room-play-footer">
           <div class="gift-wrapper">
@@ -58,18 +58,28 @@
           </div>
         </a-flex>
       </a-flex>
-      <div class="room-chat"></div>
+      <div class="room-chat">
+        <ChatList :roomId="roomId" />
+      </div>
     </a-flex>
   </a-flex>
 </template>
 
 <script setup>
-import { ref } from "vue"
-import Play from "./play.vue"
+import { computed, onMounted, ref } from "vue"
+import { useRouter } from "vue-router"
+import Player from "./Player.vue"
+import ChatList from "./ChatList.vue"
+
+const router = useRouter()
+const roomId = computed(() => {
+  return router.currentRoute.value.params.id
+})
 const playChild = ref()
 
+onMounted(() => {})
+
 const handleItemClick = () => {
-  console.log("handleItemClick")
   playChild.value.playSvga("svga/angel.svga")
 }
 </script>
@@ -143,11 +153,12 @@ const handleItemClick = () => {
         align-items: center;
         justify-content: center;
         img {
-          width: 45px;
-          height: 45px;
+          width: 40px;
+          height: 40px;
           object-fit: cover;
         }
         span[name] {
+          margin-top: 5px;
           font-size: 14px;
           color: $font-color;
         }
@@ -160,7 +171,6 @@ const handleItemClick = () => {
   }
   .room-chat {
     width: 300px;
-    background-color: #fff;
     margin-left: 10px;
   }
 }
@@ -177,7 +187,7 @@ const handleItemClick = () => {
   }
   img {
     width: 45px;
-    height: 45 px;
+    height: 45px;
     object-fit: cover;
     margin-right: 10px;
   }
