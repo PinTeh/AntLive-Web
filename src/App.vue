@@ -5,7 +5,7 @@
     :theme="{
       token: {
         // colorPrimary: '#00b96b',
-        borderRadius: '0px',
+        borderRadius: 0,
       },
     }">
     <RouterView />

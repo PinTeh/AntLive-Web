@@ -3,59 +3,27 @@
     <a-flex class="room-main">
       <a-flex class="room-play" vertical>
         <a-flex class="room-play-header">
-          <img class="avatar" src="http://localhost:9000/live.file.bucket/c3590dd2037b4011a2a0b42922445212_1743422533.png" alt="" />
+          <img class="avatar" :src="roomInfo?.userInfo?.avatar" alt="" />
           <div class="rows-content">
             <a-flex class="upper-row">
               <a-flex class="upper-row-left" align="center">
-                <span class="live-title">哔哩哔哩英雄联盟赛事</span>
+                <span class="live-title">{{ roomInfo.title }}</span>
                 <a-button class="flow-btn" size="small">关注</a-button>
               </a-flex>
               <a-flex> </a-flex>
             </a-flex>
             <div class="lower-row">
-              <span class="live-describe">【直播】IG vs FPX </span>
-              <span class="live-tag">游戏赛事</span>
+              <span class="live-describe">{{ roomInfo.introduce || "" }}</span>
+              <span class="live-tag">{{ roomInfo.categoryInfo?.name || "" }}</span>
             </div>
           </div>
         </a-flex>
         <div class="room-play-main">
-          <Player ref="playChild" />
+          <Player ref="playChild" v-if="roomInfo.status === 1" />
+          <span note v-else>主播正在赶来的路上~</span>
         </div>
         <a-flex class="room-play-footer">
-          <div class="gift-wrapper">
-            <a-popover overlayClassName="gift-popover" placement="topLeft" trigger="hover" v-for="(item, index) in 5" :key="index">
-              <template #content>
-                <a-flex>
-                  <img src="../../../src/assets/img/果汁-01.png" alt="" />
-                  <a-flex vertical>
-                    <div>
-                      <span name>嘉年华</span>
-                      <span price>1开心果</span>
-                    </div>
-                    <span describe>投喂即可加入主播的粉丝团</span>
-                  </a-flex>
-                </a-flex>
-                <a-divider />
-                <a-flex>
-                  <a-button @click="handleItemClick">1个</a-button>
-                  <a-button>10个</a-button>
-                  <a-button>100个</a-button>
-                </a-flex>
-              </template>
-              <div class="footer-item" vertical align="center">
-                <img src="../../../src/assets/img/果汁-01.png" alt="" />
-                <span name>嘉年华</span>
-                <span price>1开心果</span>
-              </div>
-            </a-popover>
-          </div>
-          <a-divider type="vertical" style="height: 100%" />
-          <div class="wallet-wrapper">
-            <div class="footer-item" vertical align="center">
-              <img src="../../../src/assets/img/开心果.png" alt="" />
-              <span price style="margin-top: 10px">余额:0</span>
-            </div>
-          </div>
+          <GiftList />
         </a-flex>
       </a-flex>
       <div class="room-chat">
@@ -70,14 +38,29 @@ import { computed, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
 import Player from "./Player.vue"
 import ChatList from "./ChatList.vue"
+import GiftList from "./GiftList.vue"
+import roomApi from "@/api/room"
 
 const router = useRouter()
 const roomId = computed(() => {
   return router.currentRoute.value.params.id
 })
 const playChild = ref()
+const roomInfo = ref({})
 
-onMounted(() => {})
+onMounted(async () => {
+  getRoomInfo()
+})
+
+/**
+ * 获取直播间信息
+ */
+const getRoomInfo = async () => {
+  const res = await roomApi.getRoomInfo({
+    rid: roomId.value,
+  })
+  roomInfo.value = res.data
+}
 
 const handleItemClick = () => {
   playChild.value.playSvga("svga/angel.svga")
@@ -112,7 +95,6 @@ const handleItemClick = () => {
             margin-left: 20px;
           }
         }
-
         .lower-row {
           margin-top: 10px;
           .live-describe {
@@ -129,44 +111,20 @@ const handleItemClick = () => {
     }
     .room-play-main {
       height: 510px;
+      background-color: #2a2a2a;
+      position: relative;
+      span[note] {
+        color: #a4a4a4;
+        font-size: 16px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
     }
     .room-play-footer {
       background-color: #fff;
       height: 100px;
-      .gift-wrapper {
-        flex: 1;
-        display: flex;
-
-        .footer-item:hover {
-          background-color: #f5f5f5;
-          cursor: pointer;
-        }
-      }
-      .wallet-wrapper {
-        width: 100px;
-      }
-      .footer-item {
-        width: 90px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        img {
-          width: 40px;
-          height: 40px;
-          object-fit: cover;
-        }
-        span[name] {
-          margin-top: 5px;
-          font-size: 14px;
-          color: $font-color;
-        }
-        span[price] {
-          font-size: 12px;
-          color: $font-color-light;
-        }
-      }
     }
   }
   .room-chat {

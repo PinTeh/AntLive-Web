@@ -1,7 +1,13 @@
 <template>
   <div class="chat-wrapper">
-    <div class="chat-header"></div>
-    <div class="chat-main">
+    <div class="chat-header">
+      <div class="rank-item" v-for="item in rank" :key="item.userId">
+        <img class="avatar" :src="item.avatar" />
+        <span class="name">{{ item.nickName }}</span>
+        <span class="charm">{{ item.charm }}</span>
+      </div>
+    </div>
+    <div class="chat-main" ref="scrollContainer" @scroll="handleScroll">
       <a-list size="small" :data-source="data">
         <template #renderItem="{ item }">
           <a-list-item><MessageItem :data="item" /></a-list-item>
@@ -13,12 +19,13 @@
         <a-textarea
           class="chat-box"
           v-model:value="messageText"
-          placeholder="发个弹幕呗～"
+          :placeholder="isLogin ? '发个弹幕呗～' : '需要登陆才能发送弹幕哦～'"
           show-count
           :maxlength="20"
+          :disabled="!isLogin"
           :auto-size="{ minRows: 2, maxRows: 2 }" />
         <div class="chat-btn-wrapper">
-          <a-button size="small" @click="handleMessageSend">发送</a-button>
+          <a-button type="primary" size="small" @click="handleMessageSend" :disabled="!isLogin">发送</a-button>
         </div>
       </a-flex>
     </div>
@@ -27,7 +34,7 @@
 
 <script setup>
 import MessageItem from "./MessageItem.vue"
-import { onBeforeMount, onMounted, ref, computed } from "vue"
+import { onBeforeMount, onMounted, ref, computed, nextTick, watch } from "vue"
 import { useStore } from "@/stores"
 import ChatApi from "@/api/chat"
 
@@ -38,8 +45,32 @@ const props = defineProps({
   },
 })
 
+const scrollContainer = ref(null)
+const isUserScrolling = ref(false)
 const roomId = computed(() => props.roomId)
 const store = useStore()
+const isLogin = useStore().user().isLogin
+
+const rank = ref([
+  {
+    userId: 1,
+    nickName: "小老虎",
+    avatar: "http://q1.qlogo.cn/g?b=qq&nk=363353005&s=100",
+    charm: 826,
+  },
+  {
+    userId: 2,
+    nickName: "那个叫啥啥",
+    avatar: "http://q1.qlogo.cn/g?b=qq&nk=794409767&s=100",
+    charm: 1396,
+  },
+  {
+    userId: 3,
+    nickName: "飞哥",
+    avatar: "http://q1.qlogo.cn/g?b=qq&nk=1109956029&s=100",
+    charm: 126,
+  },
+])
 
 let websocket = null
 let heartBeatTimer = null
@@ -49,13 +80,33 @@ const messageText = ref("")
 const data = ref([])
 
 onMounted(async () => {
-  console.log(props, "props")
   await initWebSocket()
 })
 
 onBeforeMount(() => {
   websocket && websocket.close()
 })
+
+watch(data, () => {
+  if (!isUserScrolling.value) {
+    scrollToBottom()
+  }
+})
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (scrollContainer.value) {
+      scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+    }
+  })
+}
+
+const handleScroll = () => {
+  // isUserScrolling.value = true
+  // setTimeout(() => {
+  //   isUserScrolling.value = false
+  // }, 5000)
+}
 
 /**
  * 发送消息
@@ -88,6 +139,10 @@ const initWebSocket = async () => {
     console.log("Message from server:", event.data)
     let message = JSON.parse(event.data)
     data.value = data.value.concat(message.data)
+    // 裁剪消息列表长度
+    if (data.value.length > 40) {
+      data.value = data.value.slice(-40)
+    }
   }
   websocket.onclose = () => {
     reconnectWebSocket()
@@ -124,11 +179,17 @@ const heartBeat = () => {
   }, 5000)
 }
 
+/**
+ * 重置心跳
+ */
 const heartBeatReset = () => {
   heartBeatTimer && clearTimeout(heartBeatTimer)
   heartBeat()
 }
 
+/**
+ * 重新连接websocket
+ */
 const reconnectWebSocket = () => {
   setTimeout(() => {
     console.log("Reconnecting WebSocket...")
@@ -145,7 +206,34 @@ const reconnectWebSocket = () => {
   flex-direction: column;
   .chat-header {
     height: 120px;
-    background-color: #35966a;
+    background-color: #fff;
+    display: flex;
+    .rank-item {
+      flex: 1;
+      height: 130px;
+      text-align: center;
+      .avatar {
+        border: rgb(215, 215, 215) 2px solid;
+        margin-top: 16px;
+        border-radius: 50%;
+        height: 45px;
+      }
+      .name {
+        display: block;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      .charm {
+        line-height: 25px;
+        color: #ec8303;
+        font-size: 12px;
+      }
+    }
+    .rank-item:nth-child(2) {
+      .avatar {
+        border: gold 2px solid;
+      }
+    }
   }
   .chat-main {
     height: 480px;
@@ -169,7 +257,7 @@ const reconnectWebSocket = () => {
       text-align: right;
       ::v-deep .ant-btn {
         width: 75px;
-        color: $font-color-light;
+        // color: $font-color-light;
       }
     }
     ::v-deep .ant-input-textarea-show-count::after {
