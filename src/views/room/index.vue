@@ -20,14 +20,15 @@
         </a-flex>
         <div class="room-play-main">
           <Player ref="playChild" v-if="roomInfo.status === 1" />
-          <span note v-else>主播正在赶来的路上~</span>
+          <span note v-else @click="handleItemClick">主播正在赶来的路上~</span>
+          <div id="svga-wrap"></div>
         </div>
         <a-flex class="room-play-footer">
-          <GiftList />
+          <GiftList :roomId="roomId" />
         </a-flex>
       </a-flex>
       <div class="room-chat">
-        <ChatList :roomId="roomId" />
+        <ChatList :roomId="roomId" @sendGift="handleSendGift" />
       </div>
     </a-flex>
   </a-flex>
@@ -40,17 +41,42 @@ import Player from "./Player.vue"
 import ChatList from "./ChatList.vue"
 import GiftList from "./GiftList.vue"
 import roomApi from "@/api/room"
+import SVGA from "svgaplayerweb"
 
 const router = useRouter()
 const roomId = computed(() => {
-  return router.currentRoute.value.params.id
+  let id = router.currentRoute.value.params.id
+  return Number(id)
 })
 const playChild = ref()
 const roomInfo = ref({})
+const svgaPlayer = ref(null)
+const svgaParser = ref(null)
 
 onMounted(async () => {
   getRoomInfo()
+  initSvga()
 })
+
+const initSvga = () => {
+  svgaPlayer.value = new SVGA.Player("#svga-wrap")
+  svgaParser.value = new SVGA.Parser("#svga-wrap")
+}
+
+const playSvga = (url) => {
+  if (svgaPlayer.value) {
+    svgaPlayer.value.clearAfterStop = true
+    svgaPlayer.value.stopAnimation(true)
+    svgaParser.value.load(url, (videoItem) => {
+      svgaPlayer.value.loops = 1
+      svgaPlayer.value.setVideoItem(videoItem)
+      svgaPlayer.value.startAnimation()
+      svgaPlayer.value.onFinished = () => {}
+    })
+  } else {
+    message.error("init SVGA error")
+  }
+}
 
 /**
  * 获取直播间信息
@@ -64,6 +90,12 @@ const getRoomInfo = async () => {
 
 const handleItemClick = () => {
   playChild.value.playSvga("svga/angel.svga")
+}
+
+const handleSendGift = (item) => {
+  // console.log(playChild.value)
+  // playChild.value.playSvga("svga/angel.svga")
+  playSvga("svga/angel.svga")
 }
 </script>
 
@@ -134,6 +166,14 @@ const handleItemClick = () => {
 }
 .gift-popover {
   background-color: red !important;
+}
+#svga-wrap {
+  width: 100%;
+  height: 510px;
+  z-index: 999;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
 <style lang="scss">

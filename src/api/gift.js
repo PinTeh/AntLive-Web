@@ -7,4 +7,11 @@ export default {
             method: 'get',
         })
     },
+    rewardGift(data) {
+        return request({
+            url: '/api/v1/present/reward',
+            method: 'post',
+            data
+        })
+    },
 }

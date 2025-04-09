@@ -13,7 +13,7 @@ const room = reactive({
 </script>
 
 <template>
-  <a-card hoverable class="live-room-card" @click.native="handleClick" :bodyStyle="'padding: 0px; border-radius: 2px;'">
+  <a-card hoverable class="live-room-card" @click.native="handleClick" :bodyStyle="{ padding: 0, borderRadius: 2 }">
     <a-image :preview="false" draggable="false" class="live-room-image-cover" :src="room.cover"> </a-image>
     <a-tag class="live-room-tag" type="success" effect="plain"> 直播 </a-tag>
     <span class="live-room-tag-legibility"> 蓝光10M </span>

@@ -1,19 +1,15 @@
 <template>
   <div style="position: relative">
-    <div id="svga-wrap"></div>
     <video id="videoElement" controls autoplay muted playsinline></video>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue"
-import SVGA from "svgaplayerweb"
 import { message } from "ant-design-vue"
 import flvjs from "flv.js"
 
 const flvPlayer = ref(null)
-const svgaPlayer = ref(null)
-const svgaParser = ref(null)
 
 const props = defineProps({
   roomId: {
@@ -24,29 +20,7 @@ const props = defineProps({
 
 onMounted(() => {
   playLive()
-  initSvga()
-  // playSvga("svga/angel.svga")
 })
-
-const initSvga = () => {
-  svgaPlayer.value = new SVGA.Player("#svga-wrap")
-  svgaParser.value = new SVGA.Parser("#svga-wrap")
-}
-
-const playSvga = (url) => {
-  if (svgaPlayer.value) {
-    svgaPlayer.value.clearAfterStop = true
-    svgaPlayer.value.stopAnimation(true)
-    svgaParser.value.load(url, (videoItem) => {
-      svgaPlayer.value.loops = 1
-      svgaPlayer.value.setVideoItem(videoItem)
-      svgaPlayer.value.startAnimation()
-      svgaPlayer.value.onFinished = () => {}
-    })
-  } else {
-    message.error("init SVGA error")
-  }
-}
 
 const playLive = () => {
   if (flvjs.isSupported()) {
@@ -101,7 +75,7 @@ const destroy = () => {
   flvPlayer.value.destroy()
   flvPlayer.value = null
 }
-defineExpose({ destroy, playSvga })
+defineExpose({ destroy })
 </script>
 
 <style lang="scss" scoped>
@@ -109,14 +83,6 @@ defineExpose({ destroy, playSvga })
   width: 100%;
   height: 510px;
   object-fit: cover;
-}
-#svga-wrap {
-  width: 100%;
-  height: 510px;
-  z-index: 999;
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 /* 进度条 */
 video::-webkit-media-controls-timeline {

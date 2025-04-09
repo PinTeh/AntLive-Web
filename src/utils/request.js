@@ -39,20 +39,21 @@ service.interceptors.response.use((response) => {
         return res;
     } else {
         // token过期
-        if (code === 999) {
-            Modal.confirm({
-                title: '登录提示',
-                icon: createVNode(ExclamationCircleOutlined),
-                content: '您登录的账号已过期，请重新登录',
-                cancelText: '取消',
-                okText: '重新登录',
-                onOk() {
-                    localStorage.clear();
-                    window.location.href = '/#/login';
-                    location.reload();
-                },
-                onCancel() { },
-            });
+        if (code === 401) {
+            localStorage.clear();
+            // Modal.confirm({
+            //     title: '登录提示',
+            //     icon: createVNode(ExclamationCircleOutlined),
+            //     content: '您登录的账号已过期，请重新登录',
+            //     cancelText: '取消',
+            //     okText: '重新登录',
+            //     onOk() {
+            //         localStorage.clear();
+            //         window.location.href = '/#/login';
+            //         location.reload();
+            //     },
+            //     onCancel() { },
+            // });
         } else {
             // 系统异常
             message.error(msg || 'This is an error message', 5);

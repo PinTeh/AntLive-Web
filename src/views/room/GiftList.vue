@@ -9,7 +9,7 @@
               <span name>{{ item.name }}</span>
               <span price>{{ item.price }}开心果</span>
             </div>
-            <span describe>{{ item.describe || "投喂即可加入主播的粉丝团" }}</span>
+            <span describe>{{ item.description || "投喂即可加入主播的粉丝团" }}</span>
           </a-flex>
         </a-flex>
         <a-divider />
@@ -38,7 +38,7 @@
 <script setup>
 import giftApi from "@/api/gift"
 import walletApi from "@/api/wallet"
-import { onMounted, ref } from "vue"
+import { onMounted, ref, defineProps } from "vue"
 import { message } from "ant-design-vue"
 
 onMounted(async () => {
@@ -49,9 +49,21 @@ onMounted(async () => {
 const giftList = ref([])
 const wallet = ref({})
 
-const handleItemClick = (num, item) => {
+const props = defineProps({
+  roomId: {
+    type: Number,
+    default: undefined,
+  },
+})
+
+const handleItemClick = async (num, item) => {
   // TODO: 调用购买接口
-  message.success(`赠送${num}个${item.name}成功`)
+  // message.success(`赠送${num}个${item.name}成功`)
+  await giftApi.rewardGift({
+    presentId: item.id,
+    number: num,
+    roomId: props.roomId,
+  })
 }
 
 /**

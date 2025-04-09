@@ -25,6 +25,7 @@
           :disabled="!isLogin"
           :auto-size="{ minRows: 2, maxRows: 2 }" />
         <div class="chat-btn-wrapper">
+          <span class="popularity">{{ popularity || 0 }}人在线</span>
           <a-button type="primary" size="small" @click="handleMessageSend" :disabled="!isLogin">发送</a-button>
         </div>
       </a-flex>
@@ -34,7 +35,7 @@
 
 <script setup>
 import MessageItem from "./MessageItem.vue"
-import { onBeforeMount, onMounted, ref, computed, nextTick, watch } from "vue"
+import { onBeforeMount, onMounted, ref, computed, nextTick, watch, onBeforeUnmount } from "vue"
 import { useStore } from "@/stores"
 import ChatApi from "@/api/chat"
 
@@ -45,11 +46,16 @@ const props = defineProps({
   },
 })
 
+const emits = defineEmits(["sendGift"])
+
+const maxReconnectCount = ref(50)
+const lockReconnect = ref(false)
 const scrollContainer = ref(null)
 const isUserScrolling = ref(false)
 const roomId = computed(() => props.roomId)
 const store = useStore()
 const isLogin = useStore().user().isLogin
+const popularity = ref(1)
 
 const rank = ref([
   {
@@ -73,18 +79,25 @@ const rank = ref([
 ])
 
 let websocket = null
-let heartBeatTimer = null
+const reconnectTimer = ref()
+const heartBeatTimer = ref()
+const popularityInterval = ref()
 
 const messageText = ref("")
 
 const data = ref([])
 
 onMounted(async () => {
-  await initWebSocket()
+  initWebSocket()
+  getPopularity()
 })
 
 onBeforeMount(() => {
   websocket && websocket.close()
+})
+
+onBeforeUnmount(() => {
+  close()
 })
 
 watch(data, () => {
@@ -101,12 +114,7 @@ const scrollToBottom = () => {
   })
 }
 
-const handleScroll = () => {
-  // isUserScrolling.value = true
-  // setTimeout(() => {
-  //   isUserScrolling.value = false
-  // }, 5000)
-}
+const handleScroll = () => {}
 
 /**
  * 发送消息
@@ -124,28 +132,54 @@ const handleMessageSend = () => {
 }
 
 /**
+ * 获取人气
+ */
+const getPopularity = () => {
+  popularityInterval.value = setInterval(async () => {
+    let res = await ChatApi.getPopularity({ roomId: roomId.value })
+    popularity.value = res.data
+  }, 2000)
+}
+
+/**
  * 初始化 WebSocket连接
  */
-const initWebSocket = async () => {
+const initWebSocket = () => {
   let wsUrl = "ws://" + location.hostname + ":10022?token=" + encodeURIComponent(store.user().userToken)
   websocket = new WebSocket(wsUrl)
   websocket.onopen = () => {
-    console.log("WebSocket connection opened")
+    console.log("WebSocket连接成功!")
     connetRoom()
     // 开启跳包
     heartBeat()
   }
+  websocket.onclose = (e) => {
+    if (e.code === 1000) {
+      // 服务端主动断开，不需要重连
+      return
+    }
+    if (e.code === 1005) {
+      // 手动关闭，不需要重连
+      return
+    }
+    reconnectWebSocket()
+  }
+  websocket.onerror = () => {
+    // WebSocket连接时发生错误
+  }
   websocket.onmessage = (event) => {
     console.log("Message from server:", event.data)
     let message = JSON.parse(event.data)
+    // 处理礼物
+    if (message.method === "giftMessage") {
+      emits("sendGift", message.data)
+      return
+    }
     data.value = data.value.concat(message.data)
     // 裁剪消息列表长度
     if (data.value.length > 40) {
       data.value = data.value.slice(-40)
     }
-  }
-  websocket.onclose = () => {
-    reconnectWebSocket()
   }
 }
 
@@ -156,7 +190,6 @@ const connetRoom = () => {
   let reqBody = {
     msgType: 0,
     data: {
-      // TODO: 这里需要传入房间号
       roomId: roomId.value,
     },
   }
@@ -169,32 +202,45 @@ const connetRoom = () => {
  * 发送心跳包
  */
 const heartBeat = () => {
-  heartBeatTimer = setTimeout(() => {
+  heartBeatTimer.value = setInterval(() => {
     if (websocket && websocket.readyState === 1) {
       websocket.send(JSON.stringify({ msgType: 2 }))
-      heartBeatReset()
-    } else {
-      reconnectWebSocket()
     }
-  }, 5000)
-}
-
-/**
- * 重置心跳
- */
-const heartBeatReset = () => {
-  heartBeatTimer && clearTimeout(heartBeatTimer)
-  heartBeat()
+  }, 9500)
 }
 
 /**
  * 重新连接websocket
  */
 const reconnectWebSocket = () => {
-  setTimeout(() => {
-    console.log("Reconnecting WebSocket...")
+  // 关闭心跳定时器
+  heartBeatTimer.value && clearInterval(heartBeatTimer.value)
+  heartBeatTimer.value = null
+  // 关闭原来的重连定时器
+  reconnectTimer.value && clearTimeout(reconnectTimer.value)
+  reconnectTimer.value = null
+
+  if (lockReconnect.value) {
+    return
+  }
+  lockReconnect.value = true
+  // 重连次数上限
+  if (maxReconnectCount.value == 0) {
+    return
+  }
+  // 重连
+  reconnectTimer.value = setTimeout(() => {
     initWebSocket()
-  }, 2000)
+    maxReconnectCount.value--
+    lockReconnect.value = false
+  }, 5000)
+}
+
+const close = () => {
+  websocket && websocket.close()
+  heartBeatTimer.value && clearTimeout(heartBeatTimer.value)
+  popularityInterval.value && clearInterval(popularityInterval.value)
+  reconnectTimer.value && clearTimeout(reconnectTimer.value)
 }
 </script>
 
@@ -258,6 +304,12 @@ const reconnectWebSocket = () => {
       ::v-deep .ant-btn {
         width: 75px;
         // color: $font-color-light;
+      }
+      .popularity {
+        float: left;
+        color: $font-color-light;
+        font-size: 12px;
+        margin: 5px 0px 0px 0px;
       }
     }
     ::v-deep .ant-input-textarea-show-count::after {
