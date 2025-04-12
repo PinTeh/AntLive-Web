@@ -1,13 +1,20 @@
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
+import { ref } from 'vue'
 
 export const useWebStore = defineStore('web', () => {
-    const user = reactive({
-        nickName: 'x222x'
+    const category = ref({
+        currentSelect: ''
     })
-    return {
-        user
+    function selectCategory(item) {
+        console.log(item, 'web store');
+        category.value.currentSelect = item
     }
-})
+    return {
+        category,
+        selectCategory
+    }
+}, {
+    persist: true,
+},)
 
 export default useWebStore

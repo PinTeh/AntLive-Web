@@ -156,7 +156,7 @@ const getRoomInfo = () => {
  * 获取直播分类
  */
 const getCategories = () => {
-  liveAPI.list().then((res) => {
+  liveAPI.listCategories({}).then((res) => {
     const { list: data } = res.data
     categoryOptions.value = []
     data.map((item) => {

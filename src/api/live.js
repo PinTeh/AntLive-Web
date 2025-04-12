@@ -6,9 +6,21 @@ export default {
      * @param {*} params 
      * @returns 
      */
-    list(params) {
+    listCategories(params) {
         return request({
             url: '/api/v1/category/query',
+            method: 'get',
+            params
+        })
+    },
+    /**
+     * 获取正在直播的直播间
+     * @param {*} params 
+     * @returns 
+     */
+    listLivingRooms(params) {
+        return request({
+            url: '/api/v1/room/living',
             method: 'get',
             params
         })

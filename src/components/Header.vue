@@ -16,12 +16,15 @@ const hasAdminRole = ref(true)
 const categorys = ref([])
 
 onMounted(() => {
-  liveApi.list({}).then((res) => {
+  liveApi.listCategories({}).then((res) => {
     const { list: data } = res.data
     categorys.value.push(...data)
   })
+  store.web().selectCategory(null)
 })
-const handleCategoryClick = (param) => {}
+const handleCategoryClick = (item) => {
+  store.web().selectCategory(item)
+}
 const handleLogin = () => {
   route.push("/login")
 }
@@ -29,7 +32,6 @@ const handleGoToIndex = () => {
   route.push("/")
 }
 const handleLogout = () => {
-  console.log("登出")
   store.user().logout()
 }
 </script>
@@ -42,9 +44,9 @@ const handleLogout = () => {
           <a-popover v-if="!notIndexPage" v-model="visible">
             <template #content>
               <div class="popover-container">
-                <a-button class="category-item" v-for="item in categorys" :key="item.id" plain size="mini" @click="handleCategoryClick(item)">{{
-                  item.name
-                }}</a-button>
+                <a-button class="category-item" v-for="item in categorys" :key="item.id" plain size="mini" @click="handleCategoryClick(item)">
+                  {{ item.name }}
+                </a-button>
               </div>
             </template>
             <div class="nav-span">分类</div>
