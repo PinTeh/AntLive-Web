@@ -1,5 +1,30 @@
+<template>
+  <div class="wrapper">
+    <div class="portrait">
+      <img draggable="false" :src="userInfo.avatar" width="80" height="80" />
+      <div class="info">
+        <a-flex align="center">
+          <span nick-name>{{ userInfo.nickName || "Hello World" }}</span>
+          <svg class="level-icon" aria-hidden="true">
+            <use xlink:href="#icon-ic_userlevel_5"></use>
+          </svg>
+        </a-flex>
+        <span uid>{{ userInfo.signature || "这个人很懒，什么都没留下" }}</span>
+      </div>
+    </div>
+    <div class="content-wrapper">
+      <div class="menu-wrapper">
+        <a-menu :selectedKeys="current" :openKeys="current" mode="inline" :items="items" @click="handleClick" />
+      </div>
+      <div class="content">
+        <RouterView />
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
-import { MailOutlined, AppstoreOutlined, WalletOutlined, PlaySquareOutlined, BarChartOutlined } from "@ant-design/icons-vue"
+import { MailOutlined, WalletOutlined, PlaySquareOutlined, BarChartOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { useRouter } from "vue-router"
 
@@ -110,30 +135,6 @@ const items = ref([
   },
 ])
 </script>
-<template>
-  <div class="wrapper">
-    <div class="portrait">
-      <img draggable="false" :src="userInfo.avatar" width="80" height="80" />
-      <div class="info">
-        <a-flex align="center">
-          <span nick-name>{{ userInfo.nickName || "Hello World" }}</span>
-          <svg class="level-icon" aria-hidden="true">
-            <use xlink:href="#icon-ic_userlevel_5"></use>
-          </svg>
-        </a-flex>
-        <span uid>{{ userInfo.signature || "这个人很懒，什么都没留下" }}</span>
-      </div>
-    </div>
-    <div class="content-wrapper">
-      <div class="menu-wrapper">
-        <a-menu :selectedKeys="current" :openKeys="current" mode="inline" :items="items" @click="handleClick" />
-      </div>
-      <div class="content">
-        <RouterView />
-      </div>
-    </div>
-  </div>
-</template>
 
 <style lang="scss" scoped>
 .wrapper {

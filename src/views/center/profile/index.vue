@@ -88,6 +88,9 @@ onMounted(() => {
   imageUrl.value = userInfo.avatar
 })
 
+/**
+ * 文件上传
+ */
 const handleChange = (info) => {
   if (info.file.status === "uploading") {
     loading.value = true
@@ -103,6 +106,9 @@ const handleChange = (info) => {
     message.error("upload error")
   }
 }
+/**
+ * 图片大小判断
+ */
 const beforeUpload = (file) => {
   const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png"
   if (!isJpgOrPng) {
@@ -184,7 +190,7 @@ const beforeUpload = (file) => {
       color: $font-color-light;
     }
   }
-  ::v-deep .ant-card-head {
+  ::v-deep(.ant-card-head) {
     background: linear-gradient(180deg, #e8f4ff80, #fff0);
   }
 }

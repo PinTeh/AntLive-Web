@@ -8,7 +8,7 @@ export default {
      */
     getRoomInfo(params) {
         return request({
-            url: '/api/v1/room',
+            url: '/api/v1/room/detail',
             method: 'get',
             params,
         })

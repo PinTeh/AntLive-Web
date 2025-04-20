@@ -14,9 +14,14 @@
         <span class="describe">{{ item.subtitle }}</span>
       </div>
       <div class="btn-wrapper">
-        <a-button @click="handleClick(item)"> 绑定</a-button>
+        <a-button @click="handleClick(item)">绑定</a-button>
       </div>
     </div>
+    <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk">
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+    </a-modal>
   </div>
 </template>
 
@@ -25,9 +30,15 @@ import { ref, computed } from "vue"
 import { useStore } from "@/stores"
 import { CheckCircleFilled } from "@ant-design/icons-vue"
 
+const open = ref(false)
 const userInfo = computed(() => useStore().user().userInfo)
 
-const handleClick = (item) => {}
+const handleClick = (item) => {
+  console.log(item)
+  open.value = true
+}
+
+const handleOk = () => {}
 
 const itemList = ref([
   {

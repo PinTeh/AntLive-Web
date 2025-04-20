@@ -83,7 +83,7 @@ const playSvga = (url) => {
  */
 const getRoomInfo = async () => {
   const res = await roomApi.getRoomInfo({
-    rid: roomId.value,
+    roomId: roomId.value,
   })
   roomInfo.value = res.data
 }

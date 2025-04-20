@@ -287,7 +287,7 @@ const close = () => {
     &::-webkit-scrollbar {
       display: none;
     }
-    ::v-deep .ant-list-item {
+    ::v-deep(.ant-list-item) {
       padding: 5px 8px;
       border: none;
     }
@@ -301,7 +301,7 @@ const close = () => {
     .chat-btn-wrapper {
       margin-top: 10px;
       text-align: right;
-      ::v-deep .ant-btn {
+      ::v-deep(.ant-btn) {
         width: 75px;
         // color: $font-color-light;
       }
@@ -312,7 +312,7 @@ const close = () => {
         margin: 5px 0px 0px 0px;
       }
     }
-    ::v-deep .ant-input-textarea-show-count::after {
+    ::v-deep(.ant-input-textarea-show-count::after) {
       position: absolute;
       top: 35px;
       right: 6px;

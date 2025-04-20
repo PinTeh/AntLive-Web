@@ -50,7 +50,7 @@ onMounted(() => {
 const getLiveRooms = () => {
   liveApi
     .listLivingRooms({
-      cid: currentSelectCategory.value?.id,
+      categoryId: currentSelectCategory.value?.id,
     })
     .then((res) => {
       livingRooms.value = []

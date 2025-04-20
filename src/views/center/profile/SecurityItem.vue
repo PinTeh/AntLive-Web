@@ -11,12 +11,14 @@
           <span class="label">{{ item.title }}</span>
           <span class="tag" v-if="item.status"><CheckCircleFilled />{{ item.statusString }}</span>
         </div>
-        <span class="describe">{{ item.subtitle }}</span>
+        <span class="describe">{{ item.subtitle || "" }}</span>
       </div>
       <div class="btn-wrapper">
         <a-button @click="handleClick(item)"> 绑定</a-button>
       </div>
     </div>
+    <EmailBindModal ref="emailBindModalRef" :bind="false" />
+    <PhoneBindModal ref="phoneBindModalRef" :bind="false" />
   </div>
 </template>
 
@@ -24,10 +26,20 @@
 import { ref, computed } from "vue"
 import { useStore } from "@/stores"
 import { CheckCircleFilled } from "@ant-design/icons-vue"
+import EmailBindModal from "./EmailBindModal.vue"
+import PhoneBindModal from "./PhoneBindModal.vue"
 
 const userInfo = computed(() => useStore().user().userInfo)
+const emailBindModalRef = ref(null)
+const phoneBindModalRef = ref(null)
 
-const handleClick = (item) => {}
+const handleClick = (item) => {
+  if (item.type === "email") {
+    emailBindModalRef.value.show()
+  } else if (item.type === "phone") {
+    phoneBindModalRef.value.show()
+  }
+}
 
 const itemList = ref([
   {

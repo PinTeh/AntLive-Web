@@ -94,6 +94,6 @@ video::-webkit-media-controls-current-time-display {
 }
 /*  播放按钮 */
 video::-webkit-media-controls-play-button {
-  //   display: none;
+  display: none;
 }
 </style>

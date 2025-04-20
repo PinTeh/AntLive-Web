@@ -9,6 +9,11 @@ const routes = [
         meta: { title: "登录", icon: "login", hidden: false }
     },
     {
+        path: "/register",
+        component: () => import("@/views/register.vue"),
+        meta: { title: "注册", icon: "register", hidden: false }
+    },
+    {
         path: "/",
         component: Layout,
         meta: { title: "首页", icon: "dashboard", hidden: false },
@@ -41,10 +46,6 @@ const routes = [
                     {
                         path: "personnel/history",
                         component: () => import("@/views/center/view-history/index.vue"),
-                    },
-                    {
-                        path: "security",
-                        component: () => import("@/views/center/security/index.vue"),
                     },
                     {
                         path: "dollar/wallet",
