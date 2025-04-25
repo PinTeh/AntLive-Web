@@ -8,9 +8,12 @@
             <a-flex class="upper-row">
               <a-flex class="upper-row-left" align="center">
                 <span class="live-title">{{ roomInfo.title }}</span>
-                <a-button class="flow-btn" size="small">关注</a-button>
               </a-flex>
-              <a-flex> </a-flex>
+              <a-flex class="upper-row-right">
+                <a-button class="follow-btn" size="small" @click="handleFollowBtnClick">
+                  {{ roomExtraInfo.follow ? "已关注" : "关注" }}
+                </a-button>
+              </a-flex>
             </a-flex>
             <div class="lower-row">
               <span class="live-describe">{{ roomInfo.introduce || "" }}</span>
@@ -37,10 +40,12 @@
 <script setup>
 import { computed, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
+import { useStore } from "@/stores"
 import Player from "./Player.vue"
 import ChatList from "./ChatList.vue"
 import GiftList from "./GiftList.vue"
 import roomApi from "@/api/room"
+import watchApi from "@/api/watch"
 import SVGA from "svgaplayerweb"
 
 const router = useRouter()
@@ -48,15 +53,45 @@ const roomId = computed(() => {
   let id = router.currentRoute.value.params.id
   return Number(id)
 })
+const isLogin = computed(() => {
+  return useStore().user().isLogin
+})
 const playChild = ref()
 const roomInfo = ref({})
+const roomExtraInfo = ref({})
 const svgaPlayer = ref(null)
 const svgaParser = ref(null)
 
 onMounted(async () => {
-  getRoomInfo()
   initSvga()
+  getRoomInfo()
+  if (isLogin.value) {
+    getRoomExtraInfo()
+    saveHistory()
+  }
 })
+
+const handleFollowBtnClick = () => {
+  if (roomExtraInfo.value.follow) {
+    unFollow()
+  } else {
+    follow()
+  }
+}
+
+const saveHistory = () => {
+  watchApi.saveHistory({ roomId: roomId.value })
+}
+
+const follow = async () => {
+  await watchApi.follow({ roomId: roomId.value })
+  getRoomExtraInfo()
+}
+
+const unFollow = async () => {
+  await watchApi.unFollow({ roomId: roomId.value })
+  getRoomExtraInfo()
+}
 
 const initSvga = () => {
   svgaPlayer.value = new SVGA.Player("#svga-wrap")
@@ -88,6 +123,13 @@ const getRoomInfo = async () => {
   roomInfo.value = res.data
 }
 
+const getRoomExtraInfo = async () => {
+  const res = await roomApi.getRoomExtraInfo({
+    roomId: roomId.value,
+  })
+  roomExtraInfo.value = res.data
+}
+
 const handleItemClick = () => {
   playChild.value.playSvga("svga/angel.svga")
 }
@@ -117,14 +159,22 @@ const handleSendGift = (item) => {
         object-fit: cover;
       }
       .rows-content {
+        width: 100%;
         margin-left: 20px;
         .upper-row {
+          width: 100%;
           .live-title {
             font-size: 16px;
             font-weight: bold;
           }
-          .flow-btn {
+          .follow-btn {
             margin-left: 20px;
+          }
+          .upper-row-left {
+            flex: 1;
+          }
+          .upper-row-right {
+            width: 100px;
           }
         }
         .lower-row {

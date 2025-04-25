@@ -138,7 +138,7 @@ const getPopularity = () => {
   popularityInterval.value = setInterval(async () => {
     let res = await ChatApi.getPopularity({ roomId: roomId.value })
     popularity.value = res.data
-  }, 2000)
+  }, 10000)
 }
 
 /**

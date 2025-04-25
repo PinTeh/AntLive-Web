@@ -30,7 +30,7 @@
   <div class="wallet-wrapper">
     <div class="footer-item" vertical align="center">
       <img src="../../../src/assets/img/开心果.png" alt="" />
-      <span price style="margin-top: 10px">余额:{{ wallet.balance || "0" }}个</span>
+      <span price style="margin-top: 10px">{{ isLogin ? `余额:${wallet.balance || "0"}个` : "未登录" }}</span>
     </div>
   </div>
 </template>
@@ -38,16 +38,21 @@
 <script setup>
 import giftApi from "@/api/gift"
 import walletApi from "@/api/wallet"
-import { onMounted, ref, defineProps } from "vue"
-import { message } from "ant-design-vue"
+import { useStore } from "@/stores"
+import { onMounted, ref, defineProps, computed } from "vue"
 
 onMounted(async () => {
   getGiftList()
-  getWallet()
+  if (isLogin.value) {
+    getWallet()
+  }
 })
 
 const giftList = ref([])
 const wallet = ref({})
+const isLogin = computed(() => {
+  return useStore().user().isLogin
+})
 
 const props = defineProps({
   roomId: {

@@ -13,4 +13,16 @@ export default {
             params,
         })
     },
+    /**
+     * 获取房间额外信息
+     * @param {*} params 
+     * @returns 
+     */
+    getRoomExtraInfo(params) {
+        return request({
+            url: '/api/v1/room/extra/info',
+            method: 'get',
+            params,
+        })
+    },
 }
