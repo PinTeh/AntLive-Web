@@ -1,5 +1,5 @@
 <template>
-  <div>Sy</div>
+  <div>user</div>
 </template>
 
 <script setup></script>

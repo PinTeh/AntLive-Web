@@ -1,5 +1,5 @@
 <template>
-  <div class="item">
+  <div class="item" @click="itemClick">
     <img class="cover" :src="cover" alt="" />
     <div class="info">
       <img class="avatar" :src="cover" alt="" />
@@ -9,10 +9,19 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+
 const propsObj = defineProps({
   name: String,
   cover: String,
+  roomId: Number,
 })
+
+const itemClick = () => {
+  router.push("/room/" + propsObj.roomId)
+}
 </script>
 
 <style lang="scss" scoped>

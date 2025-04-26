@@ -71,17 +71,17 @@ const onSend = async () => {
   } catch (errorInfo) {
     return
   }
-  // sendBtnDisaled.value = true
-  // let res = await commonApi.sendVerifyCode({ verifyType: "email", target: formState.username })
-  // if (res.code === 0) {
-  //   message.success("发送成功")
-  // }
-  // startTimer()
+  sendBtnDisaled.value = true
+  let res = await commonApi.sendVerifyCode({ verifyType: "phone", target: formState.target })
+  if (res.code === 0) {
+    message.success("发送成功")
+  }
+  startTimer()
 }
 
 const startTimer = () => {
   timer = setInterval(() => {
-    if (countdown.value == 0) {
+    if (countdown.value == 1) {
       sendBtnDisaled.value = false
       timer && clearInterval(timer)
       timer = null

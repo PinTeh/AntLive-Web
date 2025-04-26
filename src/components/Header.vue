@@ -66,7 +66,7 @@ const handleLogout = () => {
           <template #overlay>
             <a-menu slot="dropdown">
               <a-menu-item key="center"><a href="/#/center">个人中心</a></a-menu-item>
-              <a-menu-item key="admin" v-if="hasAdminRole" command="/admin"><a target="_blank" href="/#/admin">管理后台</a></a-menu-item>
+              <a-menu-item key="admin" v-if="hasAdminRole" command="/admin"><a target="_blank" href="/#/system">管理后台</a></a-menu-item>
               <a-menu-divider />
               <a-menu-item key="logout" divided><a href="javascript:;" @click="handleLogout">登出</a></a-menu-item>
             </a-menu>

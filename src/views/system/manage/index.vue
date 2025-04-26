@@ -1,5 +1,5 @@
 <template>
-  <div>Sy</div>
+  <div>manage</div>
 </template>
 
 <script setup></script>

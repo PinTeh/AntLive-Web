@@ -2,16 +2,21 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useWebStore = defineStore('web', () => {
+    const menuCollapse = ref(false)
     const category = ref({
         currentSelect: ''
     })
     function selectCategory(item) {
-        console.log(item, 'web store');
         category.value.currentSelect = item
     }
+    function setMenuCollapse(val) {
+        menuCollapse.value = val
+    }
     return {
+        menuCollapse,
         category,
-        selectCategory
+        selectCategory,
+        setMenuCollapse
     }
 }, {
     persist: true,

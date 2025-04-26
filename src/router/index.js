@@ -1,6 +1,7 @@
 import { createWebHashHistory, createRouter } from "vue-router"
 
-import Layout from "@/layout/index.vue"
+import DefaultLayout from "@/layout/DefaultLayout.vue"
+import SystemLayout from "@/layout/SystemLayout.vue"
 
 const routes = [
     {
@@ -14,8 +15,36 @@ const routes = [
         meta: { title: "注册", icon: "register", hidden: false }
     },
     {
+        path: "/system",
+        component: SystemLayout,
+        meta: { title: "首页", icon: "dashboard", hidden: false },
+        redirect: "/system/dashboard",
+        children: [
+            {
+                path: "/system/dashboard",
+                component: () => import("@/views/system/dashboard/index.vue"),
+                meta: { title: "首页", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/user-manage",
+                component: () => import("@/views/system/user/index.vue"),
+                meta: { title: "首页", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/user-auth",
+                component: () => import("@/views/system/user/index.vue"),
+                meta: { title: "首页", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/system-manage",
+                component: () => import("@/views/system/manage/menu.vue"),
+                meta: { title: "菜单管理", icon: "dashboard", hidden: false }
+            }
+        ]
+    },
+    {
         path: "/",
-        component: Layout,
+        component: DefaultLayout,
         meta: { title: "首页", icon: "dashboard", hidden: false },
         redirect: "/home",
         children: [
