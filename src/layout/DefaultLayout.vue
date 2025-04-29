@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-layout">
     <Header></Header>
     <div class="app-content">
       <RouterView />
@@ -14,9 +14,12 @@ import Footer from "@/components/Footer.vue"
 </script>
 
 <style lang="scss" scoped>
-.app-content {
-  overflow: auto;
-  height: calc(100vh - 80px);
-  scrollbar-gutter: stable;
+.app-layout {
+  background-color: linear-gradient(#ffffff, #f5f5f5 28%);
+  .app-content {
+    overflow: auto;
+    height: calc(100vh - 80px);
+    scrollbar-gutter: stable;
+  }
 }
 </style>

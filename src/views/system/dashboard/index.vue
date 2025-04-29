@@ -1,5 +1,5 @@
 <template>
-  <div>Sy</div>
+  <div>dashboard</div>
 </template>
 
 <script setup></script>

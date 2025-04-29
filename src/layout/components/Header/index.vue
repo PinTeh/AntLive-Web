@@ -14,7 +14,8 @@ import HeaderRightBar from "../HeaderRightBar/index.vue"
 
 <style lang="scss" scoped>
 .header {
-  // height: 50px;
   padding: 0px 10px;
+  background-color: #fff;
+  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
 }
 </style>

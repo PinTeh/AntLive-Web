@@ -1,5 +1,6 @@
 <template>
   <a-menu
+    class="sider-menu"
     v-model:openKeys="state.openKeys"
     v-model:selectedKeys="state.selectedKeys"
     mode="inline"
@@ -74,4 +75,8 @@ const getMenus = async () => {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.sider-menu {
+  background-color: transparent;
+}
+</style>

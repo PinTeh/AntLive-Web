@@ -1,5 +1,5 @@
 <template>
-  <a-button type="primary" shape="circle" @click="handleBtnClick">
+  <a-button shape="circle" @click="handleBtnClick">
     <template #icon>
       <MenuUnfoldOutlined v-if="webStore.menuCollapse" />
       <MenuFoldOutlined v-else />

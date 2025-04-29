@@ -15,6 +15,7 @@ const webStore = useStore().web()
 
 <style lang="scss" scoped>
 .sider {
-  background-color: #fff;
+  background-color: transparent;
+  border-inline-end: 1px solid rgba(5, 5, 5, 0.06);
 }
 </style>
