@@ -36,6 +36,16 @@ const routes = [
                 meta: { title: "首页", icon: "dashboard", hidden: false }
             },
             {
+                path: "/system/present-manage",
+                component: () => import("@/views/system/gift/index.vue"),
+                meta: { title: "首页", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/system-manage/system-manage-menu",
+                component: () => import("@/views/system/menu/index.vue"),
+                meta: { title: "菜单管理", icon: "dashboard", hidden: false }
+            },
+            {
                 path: "/system/system-manage",
                 component: () => import("@/views/system/manage/menu.vue"),
                 meta: { title: "菜单管理", icon: "dashboard", hidden: false }

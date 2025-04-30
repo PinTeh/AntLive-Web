@@ -7,9 +7,10 @@
         <div class="content">
           <div class="content-breadcrumb">
             <a-breadcrumb>
-              <a-breadcrumb-item>Home</a-breadcrumb-item>
-              <a-breadcrumb-item><a href="">Application Center</a></a-breadcrumb-item>
-              <a-breadcrumb-item>An Application</a-breadcrumb-item>
+              <a-breadcrumb-item>首页</a-breadcrumb-item>
+              <a-breadcrumb-item v-for="item in menuSelect">
+                <a href="">{{ item.label }}</a>
+              </a-breadcrumb-item>
             </a-breadcrumb>
           </div>
           <RouterView />
@@ -24,6 +25,12 @@
 import Header from "./components/Header/index.vue"
 import Sider from "./components/Sider/index.vue"
 import Footer from "./components/Footer/index.vue"
+import { useStore } from "@/stores"
+import { computed } from "vue"
+
+const menuSelect = computed(() => {
+  return useStore().web().menuSelect
+})
 </script>
 
 <style lang="scss" scoped>
