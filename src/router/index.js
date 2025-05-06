@@ -46,9 +46,19 @@ const routes = [
                 meta: { title: "菜单管理", icon: "dashboard", hidden: false }
             },
             {
+                path: "/system/system-manage/system-manage-role",
+                component: () => import("@/views/system/manage/role.vue"),
+                meta: { title: "角色管理", icon: "dashboard", hidden: false }
+            },
+            {
                 path: "/system/system-manage",
                 component: () => import("@/views/system/manage/menu.vue"),
                 meta: { title: "菜单管理", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/category-manage",
+                component: () => import("@/views/system/category/index.vue"),
+                meta: { title: "分类管理", icon: "dashboard", hidden: false }
             }
         ]
     },

@@ -9,7 +9,7 @@
         </a-col>
         <a-col :span="16" style="text-align: right">
           <a-button type="primary" html-type="submit">查询</a-button>
-          <a-button style="margin: 0 8px" @click="() => formRef.resetFields()">重置</a-button>
+          <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
           <a style="font-size: 12px" @click="expand = !expand">
             <template v-if="expand">
               <UpOutlined />
@@ -94,6 +94,11 @@ const getData = () => {
 const handleTableChange = (pag, filters, sorter) => {
   current.value = pag.current
   pageSize.value = pag.pageSize
+  getData()
+}
+
+const handleReset = () => {
+  formRef.value.resetFields()
   getData()
 }
 

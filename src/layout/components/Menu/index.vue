@@ -13,7 +13,7 @@
 <script setup>
 import systemApi from "@/api/system"
 import { ref, watch, h, onMounted, reactive, computed } from "vue"
-import { DesktopOutlined, AppstoreOutlined } from "@ant-design/icons-vue"
+import { AppstoreOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { useRouter } from "vue-router"
 import SvgIcon from "@/components/SvgIcon/index.vue"
