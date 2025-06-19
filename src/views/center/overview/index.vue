@@ -45,12 +45,17 @@ onMounted(() => {
 })
 
 const getData = () => {
-  liveAPI.getLiveStatInfo(current.value, pageSize.value, "").then((res) => {
-    if (res.code === 0) {
-      total.value = res.data.total
-      dataSource.value = res.data.liveStats
-    }
-  })
+  liveAPI
+    .getLiveStatInfo({
+      pageNo: current.value,
+      pageSize: pageSize.value,
+    })
+    .then((res) => {
+      if (res.code === 0) {
+        total.value = res.data.total
+        dataSource.value = res.data.list
+      }
+    })
 }
 
 const handleTableChange = (pag, filters, sorter) => {

@@ -20,9 +20,9 @@
       </a-flex>
     </a-page-header>
     <a-flex vertical justify="center" align="center" style="padding: 20px">
-      <a-button type="primary">前往收银台</a-button>
+      <a-button type="primary" @click="recharge">前往收银台</a-button>
       <div class="agreement">
-        <a-checkbox name="type">我已阅读并同意<a>《AntLive开心果用户协议》</a></a-checkbox>
+        <a-checkbox name="type" :checked="true">我已阅读并同意<a>《AntLive开心果用户协议》</a></a-checkbox>
       </div>
     </a-flex>
   </div>
@@ -30,7 +30,9 @@
 
 <script setup>
 import { ref } from "vue"
+import WalletApi from "@/api/wallet"
 import { QuestionCircleOutlined } from "@ant-design/icons-vue"
+import { message } from "ant-design-vue"
 const currentSelect = ref(1)
 const chargeList = ref([
   {
@@ -77,6 +79,15 @@ const chargeList = ref([
 
 const handleItemClick = (item) => {
   currentSelect.value = item.id
+}
+
+const recharge = () => {
+  let fee = chargeList.value[currentSelect.value - 1].fee
+  WalletApi.recharge({
+    fee,
+  }).then((res) => {
+    message.success("充值成功")
+  })
 }
 </script>
 

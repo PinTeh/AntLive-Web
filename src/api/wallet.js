@@ -31,5 +31,17 @@ export default {
             method: 'get',
             params
         })
+    },
+    /**
+     * 充值账户
+     * @param {*} data 
+     * @returns 
+     */
+    recharge(data) {
+        return request({
+            url: '/api/v1/wallet/recharge',
+            method: 'post',
+            data
+        })
     }
 }

@@ -88,15 +88,11 @@ export default {
             data,
         })
     },
-    getLiveStatInfo(page, limit, dateRange) {
+    getLiveStatInfo(data) {
         return request({
-            url: '/live/info/list',
-            method: 'get',
-            params: {
-                page,
-                limit,
-                dateRange,
-            },
+            url: '/api/v1/live/getLiveRecords',
+            method: 'post',
+            data
         })
     },
 } 
