@@ -74,8 +74,8 @@ const columns = reactive([
   },
   {
     title: "变动类型",
-    dataIndex: "actionType",
-    key: "actionType",
+    dataIndex: "actionTypeName",
+    key: "actionTypeName",
     width: 300,
   },
   {
