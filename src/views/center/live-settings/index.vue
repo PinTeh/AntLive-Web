@@ -19,14 +19,8 @@
       </div>
       <div class="cover-wrapper">
         <a-page-header title="封面设置" sub-title="Cover Settings">
-          <a-upload
-            v-model:file-list="fileList"
-            name="file"
-            list-type="picture-card"
-            class="avatar-uploader"
-            :show-upload-list="false"
-            action="/api/v1/upload/room/cover"
-            :before-upload="beforeUpload"
+          <a-upload v-model:file-list="fileList" name="file" list-type="picture-card" class="avatar-uploader"
+            :show-upload-list="false" action="/api/api/v1/upload/room/cover" :before-upload="beforeUpload"
             @change="handleChange">
             <img class="cover-img" v-if="imageUrl" :src="imageUrl" alt="avatar" />
             <div v-else>
@@ -74,14 +68,8 @@
       <div class="config-wrapper">
         <a-page-header title="信息编辑" sub-title="Live Settings">
           <div class="settings">
-            <a-form
-              :model="formState"
-              name="basic"
-              :label-col="{ span: 2 }"
-              :wrapper-col="{ span: 22 }"
-              autocomplete="off"
-              @finish="onFinish"
-              @finishFailed="onFinishFailed">
+            <a-form :model="formState" name="basic" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }"
+              autocomplete="off" @finish="onFinish" @finishFailed="onFinishFailed">
               <a-form-item label="直播标题" name="title" :rules="[{ required: true, message: '请填写直播标题!' }]">
                 <a-input v-model:value="formState.title" />
               </a-form-item>
@@ -95,7 +83,7 @@
                 <a-input v-model:value="formState.introduce" />
               </a-form-item>
               <a-form-item :wrapper-col="{ offset: 2, span: 22 }">
-                <a-button type="primary" style="width: 80px" html-type="submit" :loading="saveBtnLoading">保存</a-button>
+                <a-button type="primary" style="width: 80px" html-type="submit" :loading="saveBtnLoading">更新</a-button>
               </a-form-item>
             </a-form>
           </div>
@@ -267,9 +255,11 @@ const onFinishFailed = (errorInfo) => {
 .live-settings {
   display: flex;
   flex-direction: column;
+
   .info-wrapper {
     background-color: #fff;
     flex: 1;
+
     .link {
       font-size: 14px;
       font-weight: 500;
@@ -277,37 +267,45 @@ const onFinishFailed = (errorInfo) => {
       cursor: pointer;
     }
   }
+
   .cover-wrapper {
     margin-left: 10px;
     background-color: #fff;
+
     ::v-deep .ant-upload {
       width: 245px;
       height: 135px;
     }
+
     .cover-img {
       object-fit: cover;
       width: 250px;
       height: 140px;
     }
   }
+
   .live-wrapper {
     margin-top: 10px;
     width: 100%;
     background-color: #fff;
+
     .link {
       font-size: 14px;
       font-weight: 500;
       color: #666;
       cursor: pointer;
     }
+
     ::v-deep .ant-typography {
       margin-bottom: 0px;
     }
   }
+
   .config-wrapper {
     margin-top: 10px;
     background-color: #fff;
     width: 100%;
+
     .settings {
       margin-bottom: 20px;
     }

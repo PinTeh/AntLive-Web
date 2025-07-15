@@ -43,6 +43,7 @@ const menuSelect = computed(() => {
     background-color: #fff;
     margin: 10px;
     padding: 10px 20px 0px 20px;
+    height: calc(100vh - 100px);
     .content-breadcrumb {
       margin-bottom: 15px;
     }

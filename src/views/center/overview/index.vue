@@ -13,12 +13,24 @@
       </a-row>
     </a-form> -->
     <div class="result-list">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :pagination="pagination" @change="handleTableChange" size="small" />
+      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :pagination="pagination"
+        @change="handleTableChange" size="small">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'clickCount'">
+            <a-flex align="center">
+              <LikeOutlined />
+              <section style="width: 5px"></section>
+              <span>{{ record.clickCount || '0' }}</span>
+            </a-flex>
+          </template>
+        </template>
+      </a-table>
     </div>
   </div>
 </template>
 
 <script setup>
+import { LikeOutlined, DislikeOutlined } from "@ant-design/icons-vue"
 import liveAPI from "@/api/live"
 import { reactive, ref, computed, onMounted } from "vue"
 
@@ -75,24 +87,36 @@ const columns = reactive([
     title: "序号",
     dataIndex: "index",
     customRender: ({ text, record, index, column }) => index + 1,
-    width: 120,
+    width: 80,
   },
   {
     title: "开始时间",
     dataIndex: "startTime",
     key: "startTime",
-    width: 300,
+    width: 250,
   },
   {
     title: "结束时间",
     dataIndex: "endTime",
     key: "endTime",
-    width: 300,
+    width: 250,
   },
   {
-    title: "时长(秒)",
+    title: "时长",
     dataIndex: "time",
     key: "time",
+    width: 220,
+    customRender: ({ text, record }) => {
+      if (!record.endTime) return '-';
+      const startTime = new Date(record.startTime).getTime();
+      const endTime = new Date(record.endTime).getTime();
+      const totalSeconds = Math.floor((endTime - startTime) / 1000);
+      const days = Math.floor(totalSeconds / (3600 * 24));
+      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return `${days ? days + '天' : ''}${hours ? hours + '时' : ''}${minutes ? minutes + '分' : ''}${seconds}秒`;
+    },
   },
   {
     title: "点赞数",

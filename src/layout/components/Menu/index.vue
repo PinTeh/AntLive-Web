@@ -1,12 +1,6 @@
 <template>
-  <a-menu
-    class="sider-menu"
-    v-model:openKeys="state.openKeys"
-    v-model:selectedKeys="state.selectedKeys"
-    mode="inline"
-    :inline-collapsed="menuCollapse"
-    :items="items"
-    @click="handleClick">
+  <a-menu class="sider-menu" v-model:openKeys="state.openKeys" v-model:selectedKeys="state.selectedKeys" mode="inline"
+    :inline-collapsed="menuCollapse" :items="items" @click="handleClick">
   </a-menu>
 </template>
 
@@ -90,7 +84,7 @@ const getMenus = async () => {
         label: child.label,
         title: child.label,
         path: child.path,
-        icon: () => h(AppstoreOutlined),
+        icon: () => h(SvgIcon, { icon: child.icon, size: "15px" }),
       }))
     }
     return menuItem

@@ -2,12 +2,18 @@
   <div class="search-wrapper">
     <a-form ref="formRef" class="ant-advanced-search-form" :model="formState" @finish="onFinish">
       <a-row :gutter="24">
-        <a-col :span="8">
-          <a-form-item name="name" label="名称">
-            <a-input v-model:value="formState.name" placeholder="请输入名称" autocomplete="off"></a-input>
+        <a-col :span="6">
+          <a-form-item name="typeName" label="类型名称">
+            <a-input v-model:value="formState.typeName" placeholder="请输入类型名称" autocomplete="off"></a-input>
           </a-form-item>
         </a-col>
-        <a-col :span="16" style="text-align: right">
+        <a-col :span="6">
+          <a-form-item name="label" label="标签">
+            <a-input v-model:value="formState.label" placeholder="请输入标签" autocomplete="off"></a-input>
+          </a-form-item>
+        </a-col>
+        <a-col :span="6"></a-col>
+        <a-col :span="6" style="text-align: right">
           <a-button type="primary" html-type="submit">查询</a-button>
           <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
           <a style="font-size: 12px" @click="expand = !expand">
@@ -32,23 +38,15 @@
     <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" size="small"
       @change="handleTableChange">
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'icon'">
-          <a-flex align="center">
-            <SvgIcon :="{ icon: record.icon, size: '15px' }" />
-            <section style="width: 10px"></section>
-            <span>{{ record.icon }}</span>
-          </a-flex>
-        </template>
         <template v-if="column.key === 'status'">
           <CellStatus :val="record.status" />
         </template>
         <template v-else-if="column.key === 'action'">
-          <span>
-            <!-- <a @click="handleView(record)">详情</a> -->
-            <a @click="handleEdit(record)">修改</a>
-            <a-divider type="vertical" />
-            <a style="color: red;" @click="handleDelte(record)">删除</a>
-          </span>
+          <!-- <a @click="handleView(record)">详情</a> -->
+          <!-- <a-divider type="vertical" /> -->
+          <a @click="handleEdit(record)">修改</a>
+          <a-divider type="vertical" />
+          <a style="color: red;" @click="handleDelte(record)">删除</a>
         </template>
       </template>
     </a-table>
@@ -58,21 +56,24 @@
   <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel"
     :confirmLoading="confirmLoading" width="600px">
     <a-form ref="modalFormRef" :model="modalFormState" :rules="modalFormRules" :label-col="{ span: 4 }"
-      :wrapper-col="{ span: 18 }">
-      <a-form-item label="名称" name="title">
-        <a-input v-model:value="modalFormState.title" placeholder="请输入菜单名称" />
+      :wrapper-col="{ span: 20 }">
+      <a-form-item label="类型" name="type">
+        <a-input v-model:value="modalFormState.type" placeholder="请输入类型" />
       </a-form-item>
-      <a-form-item label="父级标识" name="pid">
-        <a-input-number v-model:value="modalFormState.pid" placeholder="请输入父级ID" :min="0" style="width: 100%" />
+      <a-form-item label="类型名称" name="typeName">
+        <a-input v-model:value="modalFormState.typeName" placeholder="请输入类型名称" />
       </a-form-item>
-      <a-form-item label="图标" name="icon">
-        <a-input v-model:value="modalFormState.icon" placeholder="请输入图标名称" />
+      <a-form-item label="标签" name="label">
+        <a-input v-model:value="modalFormState.label" placeholder="请输入标签" />
       </a-form-item>
-      <a-form-item label="路径" name="path">
-        <a-input v-model:value="modalFormState.path" placeholder="请输入路径" />
+      <a-form-item label="标签值" name="value">
+        <a-input v-model:value="modalFormState.value" placeholder="请输入标签值" />
       </a-form-item>
       <a-form-item label="排序" name="sort">
         <a-input-number v-model:value="modalFormState.sort" placeholder="请输入排序" :min="0" style="width: 100%" />
+      </a-form-item>
+      <a-form-item label="描述" name="description">
+        <a-input v-model:value="modalFormState.description" placeholder="请输入描述" />
       </a-form-item>
       <a-form-item label="状态" name="status">
         <a-select v-model:value="modalFormState.status" placeholder="请选择状态">
@@ -88,10 +89,8 @@
 import { UpOutlined, DownOutlined, PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue"
 import { onMounted, ref, computed, reactive, h, createVNode } from "vue"
 import { message, Modal } from 'ant-design-vue'
-import systemMenuApi from "@/api/systemMenu"
+import CellStatus from '@/components/Common/CellStatus.vue'
 import systemApi from "@/api/system"
-import SvgIcon from "@/components/SvgIcon/index.vue"
-import CellStatus from "@/components/Common/CellStatus.vue"
 
 const expand = ref(false)
 const formRef = ref()
@@ -112,13 +111,40 @@ const pagination = computed(() => ({
   size: "middle",
 }))
 
+// 弹窗相关
+const modalVisible = ref(false)
+const modalTitle = ref('')
+const confirmLoading = ref(false)
+const modalFormRef = ref()
+const isEdit = ref(false)
+const editId = ref(null)
+
+const modalFormState = reactive({
+  type: '',
+  typeName: '',
+  label: '',
+  value: '',
+  sort: 0,
+  status: 0
+})
+
+const modalFormRules = {
+  type: [{ required: true, message: '请输入类型', trigger: 'blur' }],
+  typeName: [{ required: true, message: '请输入类型名称', trigger: 'blur' }],
+  label: [{ required: true, message: '请输入标签', trigger: 'blur' }],
+  value: [{ required: true, message: '请输入标签值', trigger: 'blur' }],
+  sort: [{ required: true, message: '请输入排序', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
+  description: [{ required: true, message: '请输入描述', trigger: 'change' }]
+}
+
 onMounted(() => {
   getData()
 })
 
 const getData = () => {
-  systemMenuApi
-    .getPage({
+  systemApi
+    .page("dict", {
       pageNo: current.value,
       pageSize: pageSize.value,
       ...formState,
@@ -140,35 +166,9 @@ const handleReset = () => {
   getData()
 }
 
-// 弹窗相关
-const modalVisible = ref(false)
-const modalTitle = ref('')
-const confirmLoading = ref(false)
-const modalFormRef = ref()
-const isEdit = ref(false)
-const editId = ref(null)
-
-const modalFormState = reactive({
-  title: '',
-  pid: 0,
-  icon: '',
-  path: '',
-  sort: 0,
-  status: 0
-})
-
-const modalFormRules = {
-  title: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
-  pid: [{ required: true, message: '请输入父级标识', trigger: 'blur' }],
-  icon: [{ required: true, message: '请输入图标名称', trigger: 'blur' }],
-  path: [{ required: true, message: '请输入路径', trigger: 'blur' }],
-  sort: [{ required: true, message: '请输入排序', trigger: 'blur' }],
-  status: [{ required: true, message: '请选择状态', trigger: 'change' }]
-}
-
 // 新增
 const handleAdd = () => {
-  modalTitle.value = '新增菜单'
+  modalTitle.value = '新增字典'
   isEdit.value = false
   editId.value = null
   resetModalForm()
@@ -177,19 +177,20 @@ const handleAdd = () => {
 
 // 编辑
 const handleEdit = (record) => {
-  modalTitle.value = '编辑菜单'
+  modalTitle.value = '编辑字典'
   isEdit.value = true
   editId.value = record.id
 
   // 填充表单数据
   Object.assign(modalFormState, {
     id: record.id,
-    title: record.title,
-    pid: record.pid,
-    icon: record.icon,
-    path: record.path,
+    type: record.type,
+    typeName: record.typeName,
+    label: record.label,
+    value: record.value,
     sort: record.sort,
-    status: record.status
+    status: record.status,
+    description: record.description
   })
 
   modalVisible.value = true
@@ -197,19 +198,19 @@ const handleEdit = (record) => {
 
 // 查看详情
 const handleView = (record) => {
-  modalTitle.value = '查看菜单详情'
+  modalTitle.value = '查看字典详情'
   isEdit.value = false
   editId.value = null
 
   // 填充表单数据
   Object.assign(modalFormState, {
-    id: record.id,
-    title: record.title,
-    pid: record.pid,
-    icon: record.icon,
-    path: record.path,
+    type: record.type,
+    typeName: record.typeName,
+    label: record.label,
+    value: record.value,
     sort: record.sort,
-    status: record.status
+    status: record.status,
+    description: record.description
   })
 
   modalVisible.value = true
@@ -218,12 +219,13 @@ const handleView = (record) => {
 // 重置弹窗表单
 const resetModalForm = () => {
   Object.assign(modalFormState, {
-    title: '',
-    pid: 0,
-    icon: '',
-    path: '',
+    type: '',
+    typeName: '',
+    label: '',
+    value: '',
     sort: 0,
-    status: 0
+    status: 0,
+    description: ''
   })
   if (modalFormRef.value) {
     modalFormRef.value.resetFields()
@@ -236,9 +238,9 @@ const handleModalOk = () => {
     confirmLoading.value = true
 
     // const apiCall = isEdit.value
-    //   ? systemMenuApi.update(editId.value, modalFormState)
-    //   : systemMenuApi.save('menu', modalFormState)
-    const apiCall = systemApi.save('menu', modalFormState)
+    //   ? systemApi.save('dict', editId.value, modalFormState)
+    //   : systemApi.save('dict', modalFormState)
+    const apiCall = systemApi.save('dict', modalFormState)
 
     apiCall.then(() => {
       message.success(isEdit.value ? '编辑成功' : '新增成功')
@@ -266,12 +268,12 @@ const handleDelte = (record) => {
   Modal.confirm({
     title: '确认删除吗？',
     icon: createVNode(ExclamationCircleOutlined),
-    content: `删除后将无法恢复，确定删除 ${record.title} 吗？`,
+    content: `删除后将无法恢复，确定删除 ${record.type} 吗？`,
     okText: '确定',
     okType: 'danger',
     cancelText: '取消',
     onOk() {
-      systemApi.delete('menu', [record.id]).then(() => {
+      systemApi.delete('dict', [record.id]).then(() => {
         message.success('删除成功')
         getData()
       }).catch((error) => {
@@ -295,30 +297,33 @@ const columns = ref([
     width: 80,
     fixed: true,
   },
-
   {
-    title: "名称",
-    dataIndex: "title",
-    key: "title",
+    title: "类型",
+    dataIndex: "type",
+    key: "type",
     width: 150,
     fixed: true,
   },
-
   {
-    title: "图标",
-    dataIndex: "icon",
-    key: "icon",
+    title: "类型名称",
+    dataIndex: "typeName",
+    key: "typeName",
+    width: 150,
+    fixed: true,
   },
   {
-    title: "路径",
-    dataIndex: "path",
-    key: "path",
+    title: "标签",
+    dataIndex: "label",
+    key: "label",
+    width: 150,
+    fixed: true,
   },
   {
-    title: "父级标识",
-    dataIndex: "pid",
-    key: "pid",
-    width: 100,
+    title: "标签值",
+    dataIndex: "value",
+    key: "value",
+    width: 150,
+    fixed: true,
   },
   {
     title: "排序",
@@ -327,9 +332,14 @@ const columns = ref([
     sorter: (a, b) => a.sort - b.sort,
   },
   {
-    title: "状态",
+    title: "禁用状态",
     dataIndex: "status",
     key: "status",
+  },
+  {
+    title: "描述",
+    dataIndex: "description",
+    key: "description",
   },
   {
     title: "创建时间",
@@ -340,7 +350,7 @@ const columns = ref([
     title: "操作",
     key: "action",
     align: "center",
-    width: 120,
+    width: 160,
     fixed: "right",
   },
 ])

@@ -26,36 +26,120 @@
     </a-form>
   </div>
   <div class="content-wrapper">
-    <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" size="small" @change="handleTableChange">
+    <div class="operation-wrapper">
+      <a-tooltip title="search">
+        <a-button type="primary" @click="handleAdd" :icon="h(PlusOutlined)">新增</a-button>
+      </a-tooltip>
+    </div>
+    <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" size="small"
+      @change="handleTableChange">
       <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'icon'">
+          <a-flex align="center">
+            <a-avatar shape="square" :size="25" :src="record.icon" alt="U" />
+          </a-flex>
+        </template>
         <template v-if="column.key === 'disabled'">
-          <a-tag v-if="record.disabled" color="red">禁用</a-tag>
-          <a-tag v-else color="green">启用</a-tag>
+          <CellStatus :val="record.disabled" />
         </template>
         <template v-else-if="column.key === 'action'">
           <span>
-            <a>详情</a>
+            <a @click="handleEdit(record)">编辑</a>
             <a-divider type="vertical" />
-            <a>修改</a>
+            <a style="color: red;" @click="handleDelete(record)">删除</a>
           </span>
         </template>
       </template>
     </a-table>
   </div>
+
+  <!-- 新增/编辑模态框 -->
+  <a-modal :title="modalTitle" :open="modalVisible" :confirm-loading="confirmLoading" @ok="handleModalOk"
+    @cancel="handleModalCancel">
+    <a-form ref="modalFormRef" :model="modalFormState" :rules="modalFormRules" :label-col="{ span: 4 }"
+      :wrapper-col="{ span: 18 }">
+      <a-form-item label="名称" name="name">
+        <a-input v-model:value="modalFormState.name" placeholder="请输入分类名称" />
+      </a-form-item>
+      <a-form-item label="图标" name="icon">
+        <a-upload :before-upload="beforeUpload" list-type="picture-card" :show-upload-list="false"
+          @change="handleUploadChange" action="/api/api/v1/upload/file" :headers="userToken">
+          <img v-if="imageUrl" :src="imageUrl" alt="avatar" style="height: 100px;width: 100px;" />
+          <div v-else>
+            <loading-outlined v-if="loading"></loading-outlined>
+            <plus-outlined v-else></plus-outlined>
+            <div class="ant-upload-text">Upload</div>
+          </div>
+        </a-upload>
+        <a-modal :open="previewVisible" :title="previewTitle" :footer="null" @cancel="handleCancel">
+          <img alt="example" style="width: 100%" :src="previewImage" />
+        </a-modal>
+      </a-form-item>
+      <a-form-item label="排序" name="sort">
+        <a-input-number v-model:value="modalFormState.sort" :min="0" placeholder="请输入排序" style="width: 100%" />
+      </a-form-item>
+      <a-form-item label="禁用状态" name="disabled">
+        <a-select v-model:value="modalFormState.disabled" placeholder="请选择状态">
+          <a-select-option :value="0">启用</a-select-option>
+          <a-select-option :value="-1">禁用</a-select-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 
 <script setup>
-import { UpOutlined, DownOutlined } from "@ant-design/icons-vue"
-import { onMounted, ref, computed, reactive } from "vue"
+import { UpOutlined, DownOutlined, PlusOutlined, ExclamationCircleOutlined, LoadingOutlined } from "@ant-design/icons-vue"
+import { onMounted, ref, computed, reactive, h, createVNode } from "vue"
+import CellStatus from '@/components/Common/CellStatus.vue'
 import systemApi from "@/api/system"
+import { message, Modal } from "ant-design-vue"
+import { useStore } from "@/stores"
 
 const expand = ref(false)
 const formRef = ref()
 const formState = reactive({})
+const store = useStore()
+const loading = ref(false);
+const imageUrl = ref('');
+
+// 用户令牌，用于上传文件时的身份验证
+const userToken = computed(() => {
+  return {
+    Authorization: `${store.user().userToken}`,
+  }
+})
 const onFinish = (values) => {
   console.log("Received values of form: ", values)
   console.log("formState: ", formState)
   getData()
+}
+
+// 模态框相关状态
+const modalVisible = ref(false)
+const modalTitle = ref("新增分类")
+const confirmLoading = ref(false)
+const modalFormRef = ref()
+const editId = ref(null)
+
+// 图片上传相关状态
+const fileList = ref([])
+const previewVisible = ref(false)
+const previewImage = ref("")
+const previewTitle = ref("")
+
+// 模态框表单数据
+const modalFormState = reactive({
+  name: "",
+  icon: "",
+  sort: 0,
+  disabled: 0,
+})
+
+// 表单验证规则
+const modalFormRules = {
+  name: [{ required: true, message: "请输入分类名称", trigger: "blur" }],
+  sort: [{ required: true, message: "请输入排序", trigger: "blur" }],
 }
 
 const total = ref(0)
@@ -96,6 +180,167 @@ const handleReset = () => {
   getData()
 }
 
+// 新增分类
+const handleAdd = () => {
+  modalTitle.value = "新增分类"
+  resetModalForm()
+  modalVisible.value = true
+}
+
+// 编辑分类
+const handleEdit = (record) => {
+  modalTitle.value = "编辑分类"
+  editId.value = record.id
+  Object.assign(modalFormState, {
+    id: record.id,
+    name: record.name,
+    icon: record.icon,
+    sort: record.sort,
+    disabled: record.disabled,
+  })
+  // 如果有图标URL，设置到文件列表中
+  if (record.icon) {
+    fileList.value = [
+      {
+        uid: "-1",
+        name: "icon.png",
+        status: "done",
+        url: record.icon,
+      },
+    ]
+  } else {
+    fileList.value = []
+  }
+  modalVisible.value = true
+}
+
+// 删除分类
+const handleDelete = (record) => {
+  Modal.confirm({
+    title: '确认删除吗？',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: `删除后将无法恢复，确定删除 ${record.name} 吗？`,
+    okText: '确定',
+    okType: 'danger',
+    cancelText: '取消',
+    onOk() {
+      systemApi.delete('category', [record.id]).then(() => {
+        message.success('删除成功')
+        getData()
+      }).catch((error) => {
+        message.error('删除失败')
+        console.error(error)
+      })
+    },
+    onCancel() {
+      console.log('Cancel');
+    }
+  })
+}
+
+// 重置模态框表单
+const resetModalForm = () => {
+  if (modalFormRef.value) {
+    modalFormRef.value.resetFields()
+  }
+  editId.value = null
+  fileList.value = []
+  Object.assign(modalFormState, {
+    id: null,
+    name: "",
+    icon: "",
+    sort: 0,
+    disabled: 0,
+  })
+}
+
+// 模态框确认
+const handleModalOk = () => {
+  modalFormRef.value
+    .validate()
+    .then(() => {
+      confirmLoading.value = true
+      const apiCall = systemApi.save('category', modalFormState)
+
+      apiCall
+        .then(() => {
+          message.success(editId.value ? "更新成功" : "新增成功")
+          modalVisible.value = false
+          getData()
+        })
+        .catch((err) => {
+          message.error((editId.value ? "更新" : "新增") + "失败: " + (err.message || "未知错误"))
+        })
+        .finally(() => {
+          confirmLoading.value = false
+        })
+    })
+    .catch((err) => {
+      console.log("表单验证失败:", err)
+    })
+}
+
+// 模态框取消
+const handleModalCancel = () => {
+  modalVisible.value = false
+  resetModalForm()
+}
+
+// 图片上传相关方法
+const beforeUpload = (file) => {
+  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/gif"
+  if (!isJpgOrPng) {
+    message.error("只能上传 JPG/PNG/GIF 格式的图片!")
+    return false
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2
+  if (!isLt2M) {
+    message.error("图片大小不能超过 2MB!")
+    return false
+  }
+  return true // 允许自动上传，使用 action 属性指定的上传路径
+}
+
+const handlePreview = (file) => {
+  previewImage.value = file.url || file.preview
+  previewVisible.value = true
+  previewTitle.value = file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
+}
+
+const handleRemove = () => {
+  modalFormState.icon = ""
+  fileList.value = []
+}
+
+const handleCancel = () => {
+  previewVisible.value = false
+}
+
+// 上传成功回调
+const handleUploadChange = (info) => {
+  console.log(info);
+
+  if (info.file.status === 'uploading') {
+    loading.value = true;
+    return
+  }
+  if (info.file.status === 'done') {
+    // 上传成功，从响应中获取URL
+    if (info.file.response && info.file.response.code === 0) {
+      loading.value = false;
+      const url = info.file.response.data
+      modalFormState.icon = url
+      imageUrl.value = url;
+      message.success('图片上传成功')
+    } else {
+      message.error('图片上传失败: ' + (info.file.response?.message || '未知错误'))
+    }
+  } else if (info.file.status === 'error') {
+    loading.value = false;
+    message.error('图片上传失败')
+  }
+}
+
 const dataSource = ref([])
 const columns = ref([
   {
@@ -106,18 +351,23 @@ const columns = ref([
     width: 80,
     fixed: true,
   },
-
+  {
+    title: "图标",
+    dataIndex: "icon",
+    key: "icon",
+    width: 80,
+  },
   {
     title: "名称",
     dataIndex: "name",
     key: "name",
     width: 150,
-    fixed: true,
   },
   {
     title: "排序",
     dataIndex: "sort",
     key: "sort",
+    sorter: (a, b) => a.sort - b.sort,
   },
   {
     title: "禁用状态",
@@ -147,7 +397,13 @@ const columns = ref([
     }
   }
 }
+
 .content-wrapper {
   margin-top: 20px;
+
+  .operation-wrapper {
+    margin-bottom: 20px;
+    display: flex;
+  }
 }
 </style>

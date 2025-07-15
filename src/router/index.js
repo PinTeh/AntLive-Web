@@ -59,6 +59,11 @@ const routes = [
                 path: "/system/category-manage",
                 component: () => import("@/views/system/category/index.vue"),
                 meta: { title: "分类管理", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/system-manage/dictionary-manage",
+                component: () => import("@/views/system/dict/index.vue"),
+                meta: { title: "字典管理", icon: "dashboard", hidden: false }
             }
         ]
     },
