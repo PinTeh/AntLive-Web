@@ -38,7 +38,7 @@
           <a-flex align="center">
             <a-avatar v-if="record.icon" :size="25" :src="record.icon" alt="U" />
             <a-avatar v-else :size="20" style="color: #f56a00; background-color: #fde3cf">{{ record.name.substring(0, 2)
-              }}</a-avatar>
+            }}</a-avatar>
             <section style="width: 10px"></section>
             <span>{{ record.name }}</span>
           </a-flex>

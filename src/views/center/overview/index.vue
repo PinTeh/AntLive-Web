@@ -23,6 +23,13 @@
               <span>{{ record.clickCount || '0' }}</span>
             </a-flex>
           </template>
+          <template v-if="column.key === 'messageCount'">
+            <a-flex align="center">
+              <CommentOutlined />
+              <section style="width: 5px"></section>
+              <span>{{ record.messageCount || '0' }}</span>
+            </a-flex>
+          </template>
         </template>
       </a-table>
     </div>
@@ -30,7 +37,7 @@
 </template>
 
 <script setup>
-import { LikeOutlined, DislikeOutlined } from "@ant-design/icons-vue"
+import { LikeOutlined, CommentOutlined } from "@ant-design/icons-vue"
 import liveAPI from "@/api/live"
 import { reactive, ref, computed, onMounted } from "vue"
 
@@ -126,8 +133,8 @@ const columns = reactive([
   },
   {
     title: "评论数",
-    dataIndex: "danMuCount",
-    key: "danMuCount",
+    dataIndex: "messageCount",
+    key: "messageCount",
     customRender: ({ text, record, index, column }) => text || 0,
   },
 ])

@@ -31,8 +31,13 @@ const routes = [
                 meta: { title: "首页", icon: "dashboard", hidden: false }
             },
             {
+                path: "/system/message-manage",
+                component: () => import("@/views/system/message/index.vue"),
+                meta: { title: "首页", icon: "dashboard", hidden: false }
+            },
+            {
                 path: "/system/user-auth",
-                component: () => import("@/views/system/user/index.vue"),
+                component: () => import("@/views/system/message/index.vue"),
                 meta: { title: "首页", icon: "dashboard", hidden: false }
             },
             {
@@ -40,14 +45,19 @@ const routes = [
                 component: () => import("@/views/system/gift/index.vue"),
                 meta: { title: "首页", icon: "dashboard", hidden: false }
             },
+            // {
+            //     path: "/system/system-manage/system-manage-menu",
+            //     component: () => import("@/views/system/menu/index.vue"),
+            //     meta: { title: "菜单管理", icon: "dashboard", hidden: false }
+            // },
             {
                 path: "/system/system-manage/system-manage-menu",
-                component: () => import("@/views/system/menu/index.vue"),
+                component: () => import("@/views/system/menu2/index.vue"),
                 meta: { title: "菜单管理", icon: "dashboard", hidden: false }
             },
             {
-                path: "/system/system-manage/system-manage-role",
-                component: () => import("@/views/system/manage/role.vue"),
+                path: "/system/system-manage/user-role-manage",
+                component: () => import("@/views/system/role/index.vue"),
                 meta: { title: "角色管理", icon: "dashboard", hidden: false }
             },
             {
@@ -59,6 +69,11 @@ const routes = [
                 path: "/system/category-manage",
                 component: () => import("@/views/system/category/index.vue"),
                 meta: { title: "分类管理", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/bill",
+                component: () => import("@/views/system/bill/index.vue"),
+                meta: { title: "账单管理", icon: "dashboard", hidden: false }
             },
             {
                 path: "/system/system-manage/dictionary-manage",

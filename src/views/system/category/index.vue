@@ -36,11 +36,13 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'icon'">
           <a-flex align="center">
-            <a-avatar shape="square" :size="25" :src="record.icon" alt="U" />
+            <a-avatar v-if="record.icon" shape="square" :size="25" :src="record.icon" alt="U" />
+            <a-avatar v-else :size="25" shape="square" :style="{ backgroundColor: getAvatarColor(record.name) }">{{
+              record.name.substring(0, 2) }}</a-avatar>
           </a-flex>
         </template>
-        <template v-if="column.key === 'disabled'">
-          <CellStatus :val="record.disabled" />
+        <template v-if="column.key === 'status'">
+          <CellStatus :val="record.status" />
         </template>
         <template v-else-if="column.key === 'action'">
           <span>
@@ -78,8 +80,8 @@
       <a-form-item label="排序" name="sort">
         <a-input-number v-model:value="modalFormState.sort" :min="0" placeholder="请输入排序" style="width: 100%" />
       </a-form-item>
-      <a-form-item label="禁用状态" name="disabled">
-        <a-select v-model:value="modalFormState.disabled" placeholder="请选择状态">
+      <a-form-item label="禁用状态" name="status">
+        <a-select v-model:value="modalFormState.status" placeholder="请选择状态">
           <a-select-option :value="0">启用</a-select-option>
           <a-select-option :value="-1">禁用</a-select-option>
         </a-select>
@@ -89,7 +91,7 @@
 </template>
 
 <script setup>
-import { UpOutlined, DownOutlined, PlusOutlined, ExclamationCircleOutlined, LoadingOutlined } from "@ant-design/icons-vue"
+import { UpOutlined, DownOutlined, PlusOutlined, ExclamationCircleOutlined, LoadingOutlined, BranchesOutlined } from "@ant-design/icons-vue"
 import { onMounted, ref, computed, reactive, h, createVNode } from "vue"
 import CellStatus from '@/components/Common/CellStatus.vue'
 import systemApi from "@/api/system"
@@ -133,7 +135,7 @@ const modalFormState = reactive({
   name: "",
   icon: "",
   sort: 0,
-  disabled: 0,
+  status: 0,
 })
 
 // 表单验证规则
@@ -191,12 +193,13 @@ const handleAdd = () => {
 const handleEdit = (record) => {
   modalTitle.value = "编辑分类"
   editId.value = record.id
+  imageUrl.value = record.icon
   Object.assign(modalFormState, {
     id: record.id,
     name: record.name,
     icon: record.icon,
     sort: record.sort,
-    disabled: record.disabled,
+    status: record.status,
   })
   // 如果有图标URL，设置到文件列表中
   if (record.icon) {
@@ -250,7 +253,7 @@ const resetModalForm = () => {
     name: "",
     icon: "",
     sort: 0,
-    disabled: 0,
+    status: 0,
   })
 }
 
@@ -316,6 +319,29 @@ const handleCancel = () => {
   previewVisible.value = false
 }
 
+// 根据名称生成固定的头像颜色
+const getAvatarColor = (name) => {
+  if (!name) return '#1890ff'
+
+  // 预定义的颜色数组
+  const colors = [
+    '#f56a00', '#7265e6', '#ffbf00', '#00a2ae',
+    '#87d068', '#108ee9', '#f50', '#2db7f5',
+    '#52c41a', '#fa8c16', '#eb2f96', '#722ed1',
+    '#13c2c2', '#fa541c', '#a0d911', '#1890ff'
+  ]
+
+  // 使用简单的哈希函数生成固定索引
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+
+  // 确保索引为正数并在颜色数组范围内
+  const index = Math.abs(hash) % colors.length
+  return colors[index]
+}
+
 // 上传成功回调
 const handleUploadChange = (info) => {
   console.log(info);
@@ -371,8 +397,8 @@ const columns = ref([
   },
   {
     title: "禁用状态",
-    dataIndex: "disabled",
-    key: "disabled",
+    dataIndex: "status",
+    key: "status",
   },
   {
     title: "创建时间",
