@@ -79,6 +79,11 @@ const routes = [
                 path: "/system/system-manage/dictionary-manage",
                 component: () => import("@/views/system/dict/index.vue"),
                 meta: { title: "字典管理", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/test-icons",
+                component: () => import("@/views/test-icons.vue"),
+                meta: { title: "图标测试", icon: "dashboard", hidden: false }
             }
         ]
     },
@@ -152,6 +157,10 @@ const routes = [
                     {
                         path: "dollar/bill",
                         component: () => import("@/views/center/bill/index.vue"),
+                    },
+                    {
+                        path: "messages",
+                        component: () => import("@/views/center/messages/index.vue"),
                     },
                 ],
             },

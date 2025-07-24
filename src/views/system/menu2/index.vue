@@ -31,7 +31,9 @@
         </div>
         <div class="table-container">
             <a-table :dataSource="dataSource" :columns="columns" size="small" @change="handleTableChange"
-                :pagination="false" :scroll="{ y: 'calc(100vh - 320px)' }">
+                :pagination="false" :scroll="{ y: 'calc(100vh - 320px)' }" :defaultExpandAllRows="false"
+                :expandedRowKeys="expandedRowKeys" @expandedRowsChange="handleExpandedRowsChange" @expand="handleExpand"
+                :rowKey="record => record.id" childrenColumnName="children">
                 <template #bodyCell="{ column, record }">
                     <template v-if="column.key === 'icon'">
                         <a-flex align="center">
@@ -73,7 +75,15 @@
                 </a-select>
             </a-form-item>
             <a-form-item label="图标" name="icon">
-                <a-input v-model:value="modalFormState.icon" placeholder="请输入图标名称" />
+                <a-select v-model:value="modalFormState.icon" placeholder="请选择图标" style="width: 100%" allowClear>
+                    <a-select-option v-for="iconOption in iconOptions" :key="iconOption.value"
+                        :value="iconOption.value">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <SvgIcon :icon="iconOption.value" style="width: 16px; height: 16px;" />
+                            <span>{{ iconOption.value }}</span>
+                        </div>
+                    </a-select-option>
+                </a-select>
             </a-form-item>
             <a-form-item label="路径" name="path">
                 <a-input v-model:value="modalFormState.path" placeholder="请输入路径" />
@@ -103,6 +113,25 @@ import CellStatus from "@/components/Common/CellStatus.vue"
 const expand = ref(false)
 const formRef = ref()
 const formState = reactive({})
+const expandedRowKeys = ref([]) // 控制表格展开行的状态
+
+// 处理表格展开行变化
+const handleExpandedRowsChange = (expandedRows) => {
+    console.log('展开行变化:', expandedRows)
+    expandedRowKeys.value = expandedRows
+}
+
+// 处理单个行的展开/折叠
+const handleExpand = (expanded, record) => {
+    console.log('展开/折叠行:', expanded, record)
+    if (expanded) {
+        // 如果是展开操作，将当前行ID添加到expandedRowKeys中
+        expandedRowKeys.value = [...expandedRowKeys.value, record.id]
+    } else {
+        // 如果是折叠操作，从expandedRowKeys中移除当前行ID
+        expandedRowKeys.value = expandedRowKeys.value.filter(key => key !== record.id)
+    }
+}
 const onFinish = (values) => {
     console.log("Received values of form: ", values)
     console.log("formState: ", formState)
@@ -281,6 +310,47 @@ const menuOptions = computed(() => {
     return dataSource.value.map(menu => ({
         id: menu.id,
         label: menu.label || menu.title
+    }))
+})
+
+// 图标选项列表（从接口返回的数据中获取）
+const iconOptions = computed(() => {
+    // 从当前数据源中提取所有已使用的图标
+    const usedIcons = new Set()
+    const extractIcons = (items) => {
+        items.forEach(item => {
+            if (item.icon) {
+                usedIcons.add(item.icon)
+            }
+            if (item.children && item.children.length > 0) {
+                extractIcons(item.children)
+            }
+        })
+    }
+    extractIcons(dataSource.value)
+
+    // 固定的图标选项列表
+    const allIcons = [
+        'icon-dashboard',
+        'icon-jiaoseguanli',
+        'icon-caidanguanli',
+        'icon-jiankong',
+        'icon-zhiboshuju',
+        'icon-jiaosefenpei',
+        'icon-user',
+        'icon-setting',
+        'icon-home',
+        'icon-menu',
+        'icon-list',
+        'icon-table'
+    ]
+
+    // 合并已使用的图标和固定图标列表
+    const combinedIcons = [...new Set([...Array.from(usedIcons), ...allIcons])]
+
+    return combinedIcons.map(icon => ({
+        value: icon,
+        label: icon
     }))
 })
 const columns = ref([

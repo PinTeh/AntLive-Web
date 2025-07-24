@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { MailOutlined, WalletOutlined, PlaySquareOutlined, BarChartOutlined } from "@ant-design/icons-vue"
+import { MailOutlined, WalletOutlined, PlaySquareOutlined, BarChartOutlined, MessageOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { useRouter } from "vue-router"
 
@@ -41,7 +41,13 @@ onMounted(() => {
 
 const handleClick = (e) => {
   current.value = e.keyPath
-  route.push("/center/" + e.keyPath[0] + "/" + e.keyPath[1])
+  if (e.keyPath.length === 1) {
+    // 单级路由，如消息中心
+    route.push("/center/" + e.keyPath[0])
+  } else {
+    // 二级路由
+    route.push("/center/" + e.keyPath[0] + "/" + e.keyPath[1])
+  }
 }
 
 const current = ref(["personnel", "profile"])
@@ -69,6 +75,7 @@ const items = ref([
       },
     ],
   },
+
   {
     key: "live",
     icon: () => h(PlaySquareOutlined),
@@ -122,17 +129,18 @@ const items = ref([
         title: "礼物流水",
       },
       {
-        key: "comment",
-        label: "弹幕统计",
-        title: "弹幕统计",
-      },
-      {
         key: "punishment",
         label: "运营奖惩",
         title: "运营奖惩",
       },
     ],
   },
+  {
+    key: "messages",
+    icon: () => h(MessageOutlined),
+    label: "消息中心",
+    title: "消息中心",
+  }
 ])
 </script>
 
@@ -140,6 +148,7 @@ const items = ref([
 .wrapper {
   width: 1300px;
   margin: 0 auto;
+
   .portrait {
     width: 1300px;
     height: 160px;
@@ -149,6 +158,7 @@ const items = ref([
     background-color: #fff;
     transition: box-shadow 0.3s ease;
     cursor: pointer;
+
     img {
       width: 80px;
       height: 80px;
@@ -158,22 +168,27 @@ const items = ref([
       border: 1px solid rgba(205, 205, 205, 0.5);
       margin: 0px 20px;
     }
+
     img:hover {
       border: 1px solid rgba(118, 118, 118, 0.5);
     }
+
     .info {
       color: $font-color;
       font-weight: 400;
+
       .level-icon {
         height: 25px;
         width: 30px;
         margin-left: 5px;
       }
+
       span[nick-name] {
         font-weight: 400;
         font-size: 20px;
         line-height: 20px;
       }
+
       span[uid] {
         margin-top: 10px;
         display: block;
@@ -182,19 +197,23 @@ const items = ref([
       }
     }
   }
+
   .portrait:hover {
     box-shadow:
       0 5px 5px -3px rgba(0, 0, 0, 0.1),
       0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
+
   .content-wrapper {
     display: flex;
     align-items: flex-start;
     margin-top: 20px;
     margin-bottom: 20px;
+
     .menu-wrapper {
       width: 200px;
     }
+
     .content {
       flex: 1;
       // background-color: #fff;

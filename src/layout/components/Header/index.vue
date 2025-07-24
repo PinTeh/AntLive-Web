@@ -1,8 +1,12 @@
 <template>
   <a-layout-header class="header">
     <a-flex>
-      <div style="flex: 1"><MenuFoldBtn></MenuFoldBtn></div>
-      <div><HeaderRightBar></HeaderRightBar></div>
+      <div style="flex: 1">
+        <MenuFoldBtn></MenuFoldBtn>
+      </div>
+      <div>
+        <HeaderRightBar></HeaderRightBar>
+      </div>
     </a-flex>
   </a-layout-header>
 </template>

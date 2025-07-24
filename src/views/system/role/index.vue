@@ -56,7 +56,7 @@
 
             <div v-else class="menu-assignment">
                 <div class="assignment-actions">
-                    <a-button type="primary" @click="handleAssignMenu" :disabled="!hasUnassignedMenus">分配菜单</a-button>
+                    <a-button type="primary" @click="handleAssignMenu">分配菜单</a-button>
                     <a-button @click="handleUnassignMenu" style="margin-left: 8px">取消分配</a-button>
                 </div>
 
@@ -64,7 +64,10 @@
                     <div class="assigned-menus">
                         <h4>已分配菜单</h4>
                         <a-table :dataSource="assignedMenus" :columns="menuColumns" :pagination="false" size="small"
-                            :row-selection="{ selectedRowKeys: selectedAssignedMenuKeys, onChange: onAssignedMenuSelectChange }">
+                            :row-selection="{ selectedRowKeys: selectedAssignedMenuKeys, onChange: onAssignedMenuSelectChange }"
+                            :defaultExpandAllRows="false" :expandedRowKeys="assignedExpandedRowKeys"
+                            @expandedRowsChange="handleAssignedExpandedRowsChange" @expand="handleAssignedExpand"
+                            :rowKey="record => record.id" childrenColumnName="children">
                             <template #bodyCell="{ column, record }">
                                 <template v-if="column.key === 'type'">
                                     <a-tag :color="record.type === 'menu' ? 'blue' : 'green'">{{ record.type === 'menu'
@@ -104,7 +107,10 @@
     <a-modal title="分配菜单" :open="assignMenuModalVisible" :confirm-loading="assignConfirmLoading"
         @ok="handleAssignMenuModalOk" @cancel="handleAssignMenuModalCancel" width="800px">
         <a-table :dataSource="availableMenus" :columns="availableMenuColumns" :pagination="false" size="small"
-            :row-selection="{ selectedRowKeys: selectedAvailableMenuKeys, onChange: onAvailableMenuSelectChange }">
+            :row-selection="{ selectedRowKeys: selectedAvailableMenuKeys, onChange: onAvailableMenuSelectChange }"
+            :defaultExpandAllRows="false" :expandedRowKeys="expandedRowKeys"
+            @expandedRowsChange="handleExpandedRowsChange" @expand="handleExpand" :rowKey="record => record.id"
+            childrenColumnName="children" :scroll="{ y: 400 }">
             <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'type'">
                     <a-tag :color="record.type === 'menu' ? 'blue' : 'green'">{{ record.type === 'menu' ? '菜单' : '按钮'
@@ -151,13 +157,15 @@ const roleModalFormRules = {
     permission: [{ required: true, message: "请输入权限描述", trigger: "blur" }],
 }
 
-// 菜单分配相关状态
+// 角色分配相关状态
 const assignedMenus = ref([])
 const availableMenus = ref([])
 const selectedAssignedMenuKeys = ref([])
 const selectedAvailableMenuKeys = ref([])
 const assignMenuModalVisible = ref(false)
 const assignConfirmLoading = ref(false)
+const expandedRowKeys = ref([]) // 控制分配菜单表格展开行的状态
+const assignedExpandedRowKeys = ref([]) // 控制已分配菜单表格展开行的状态
 
 // 分页相关
 const roleTotal = ref(0)
@@ -221,11 +229,6 @@ const menuColumns = ref([
 
 const availableMenuColumns = ref([
     {
-        title: "id",
-        dataIndex: "id",
-        key: "id",
-    },
-    {
         title: "菜单名称",
         dataIndex: "title",
         key: "title",
@@ -241,18 +244,9 @@ const availableMenuColumns = ref([
         dataIndex: "path",
         key: "path",
     },
-    {
-        title: "父级菜单",
-        dataIndex: "parentName",
-        key: "parentName",
-        width: 120,
-    },
 ])
 
-// 计算属性
-const hasUnassignedMenus = computed(() => {
-    return availableMenus.value.length > 0
-})
+// 计算属性（已移除 hasUnassignedMenus，因为菜单数据现在是按需获取）
 
 // 监听选中的角色变化
 watch(selectedRoleKeys, (newKeys) => {
@@ -263,11 +257,13 @@ watch(selectedRoleKeys, (newKeys) => {
         selectedRole.value = null
         assignedMenus.value = []
     }
+    // 重置选中状态和展开状态
+    selectedAssignedMenuKeys.value = []
+    assignedExpandedRowKeys.value = []
 })
 
 onMounted(() => {
     getRoleData()
-    getAvailableMenus()
 })
 
 // 获取角色数据
@@ -283,15 +279,7 @@ const getRoleData = () => {
     })
 }
 
-// 获取可分配的菜单列表
-const getAvailableMenus = () => {
-    systemApi.page("menu", {
-        current: 1,
-        size: 1000,
-    }).then(res => {
-        availableMenus.value = res.data.list
-    })
-}
+// 获取可分配的菜单列表（已移除，改为在点击分配菜单按钮时动态获取）
 
 // 获取角色已分配的菜单
 const getRoleMenus = (roleId) => {
@@ -353,6 +341,42 @@ const onAssignedMenuSelectChange = (selectedRowKeys) => {
 
 const onAvailableMenuSelectChange = (selectedRowKeys) => {
     selectedAvailableMenuKeys.value = selectedRowKeys
+}
+
+// 处理分配菜单表格展开行变化
+const handleExpandedRowsChange = (expandedRows) => {
+    console.log('分配菜单展开行变化:', expandedRows)
+    expandedRowKeys.value = expandedRows
+}
+
+// 处理分配菜单表格单个行的展开/折叠
+const handleExpand = (expanded, record) => {
+    console.log('分配菜单展开/折叠行:', expanded, record)
+    if (expanded) {
+        // 如果是展开操作，将当前行ID添加到expandedRowKeys中
+        expandedRowKeys.value = [...expandedRowKeys.value, record.id]
+    } else {
+        // 如果是折叠操作，从expandedRowKeys中移除当前行ID
+        expandedRowKeys.value = expandedRowKeys.value.filter(key => key !== record.id)
+    }
+}
+
+// 处理已分配菜单表格展开行变化
+const handleAssignedExpandedRowsChange = (expandedRows) => {
+    console.log('已分配菜单展开行变化:', expandedRows)
+    assignedExpandedRowKeys.value = expandedRows
+}
+
+// 处理已分配菜单表格单个行的展开/折叠
+const handleAssignedExpand = (expanded, record) => {
+    console.log('已分配菜单展开/折叠行:', expanded, record)
+    if (expanded) {
+        // 如果是展开操作，将当前行ID添加到assignedExpandedRowKeys中
+        assignedExpandedRowKeys.value = [...assignedExpandedRowKeys.value, record.id]
+    } else {
+        // 如果是折叠操作，从assignedExpandedRowKeys中移除当前行ID
+        assignedExpandedRowKeys.value = assignedExpandedRowKeys.value.filter(key => key !== record.id)
+    }
 }
 
 // 角色管理操作
@@ -436,9 +460,29 @@ const handleRoleModalCancel = () => {
 }
 
 // 菜单分配操作
-const handleAssignMenu = () => {
+const handleAssignMenu = async () => {
+    try {
+        // 动态获取菜单列表数据
+        const res = await systemRoleApi.listMenus({
+            current: 1,
+            size: 1000
+        })
+        if (res.code === 0) {
+            availableMenus.value = res.data
+        } else {
+            // 如果listMenus接口失败，尝试使用systemApi.getMenus
+            const menuRes = await systemApi.getMenus()
+            availableMenus.value = menuRes.data
+        }
+    } catch (error) {
+        console.error('获取菜单列表失败:', error)
+        message.error('获取菜单列表失败')
+        return
+    }
+
     assignMenuModalVisible.value = true
     selectedAvailableMenuKeys.value = []
+    expandedRowKeys.value = []
 }
 
 const handleUnassignMenu = () => {
@@ -449,12 +493,29 @@ const handleUnassignMenu = () => {
 
     Modal.confirm({
         title: '确认取消分配吗？',
-        content: '确定要取消选中菜单的分配吗？',
-        onOk() {
-            // 实际应调用取消分配API
-            message.success('取消分配成功')
-            getRoleMenus(selectedRole.value.id)
-            selectedAssignedMenuKeys.value = []
+        icon: createVNode(ExclamationCircleOutlined),
+        content: `确定要取消分配选中的 ${selectedAssignedMenuKeys.value.length} 个菜单吗？`,
+        okText: '确认',
+        cancelText: '取消',
+        okType: 'danger',
+        onOk: async () => {
+            try {
+                // 调用后端API取消分配多个菜单
+                const res = await systemRoleApi.removeRoleMenus({
+                    roleId: selectedRole.value.id,
+                    menuIds: selectedAssignedMenuKeys.value
+                })
+                if (res.code === 0) {
+                    message.success('取消分配成功')
+                    getRoleMenus(selectedRole.value.id)
+                    selectedAssignedMenuKeys.value = []
+                } else {
+                    message.error('取消分配失败')
+                }
+            } catch (error) {
+                console.error('取消分配失败:', error)
+                message.error('取消分配失败')
+            }
         },
     })
 }
@@ -470,15 +531,15 @@ const handleUnassignSingleMenu = (menu) => {
         okType: 'danger',
         onOk: async () => {
             try {
-                // TODO: 调用后端API取消分配单个菜单
-                // await systemRoleApi.unassignSingleMenu({
-                //     roleId: selectedRole.value.id,
-                //     menuId: menu.id
-                // })
-
-                // 模拟取消分配
-                assignedMenus.value = assignedMenus.value.filter(item => item.id !== menu.id)
-                message.success('取消分配成功')
+                // 调用后端API取消分配单个菜单
+                const res = await systemRoleApi.removeRoleMenus({
+                    roleId: selectedRole.value.id,
+                    menuIds: [menu.id]
+                })
+                if (res.code === 0) {
+                    getRoleMenus(selectedRole.value.id)
+                    message.success('取消分配成功')
+                }
             } catch (error) {
                 console.error('取消分配失败:', error)
                 message.error('取消分配失败')
@@ -492,21 +553,25 @@ const handleAssignMenuModalOk = () => {
         message.warning('请选择要分配的菜单')
         return
     }
-
     assignConfirmLoading.value = true
-    // 实际应调用分配API
-    setTimeout(() => {
-        message.success('分配成功')
-        assignMenuModalVisible.value = false
-        getRoleMenus(selectedRole.value.id)
-        selectedAvailableMenuKeys.value = []
-        assignConfirmLoading.value = false
-    }, 1000)
+    systemRoleApi.saveRoleMenus({
+        roleId: selectedRole.value.id,
+        menuIds: selectedAvailableMenuKeys.value
+    }).then((res) => {
+        if (res.code === 0) {
+            message.success('分配成功')
+            assignMenuModalVisible.value = false
+            getRoleMenus(selectedRole.value.id)
+            selectedAvailableMenuKeys.value = []
+            assignConfirmLoading.value = false
+        }
+    })
 }
 
 const handleAssignMenuModalCancel = () => {
     assignMenuModalVisible.value = false
     selectedAvailableMenuKeys.value = []
+    expandedRowKeys.value = []
 }
 
 // 工具函数

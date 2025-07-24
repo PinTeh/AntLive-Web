@@ -4,7 +4,7 @@ import App from './App.vue'
 import { createPinia } from 'pinia'
 import routers from '@/router'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import '@/assets/icons/iconfont.js'
+import '@/assets/iconfont/iconfont.js'
 import vueInfiniteScroll from 'vue-infinite-scroll'
 
 

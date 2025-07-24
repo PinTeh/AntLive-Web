@@ -7,7 +7,6 @@
 <script setup>
 import systemApi from "@/api/system"
 import { ref, watch, h, onMounted, reactive, computed } from "vue"
-import { AppstoreOutlined } from "@ant-design/icons-vue"
 import { useStore } from "@/stores"
 import { useRouter } from "vue-router"
 import SvgIcon from "@/components/SvgIcon/index.vue"
@@ -89,8 +88,11 @@ const getMenus = async () => {
     }
     return menuItem
   })
+  
+  // 只设置选中的菜单，不自动展开所有菜单
   state.selectedKeys = [items.value[0].key]
-  state.openKeys = [items.value[0].key]
+  // 不设置默认展开的菜单，让用户自己点击展开
+  state.openKeys = []
 }
 </script>
 
