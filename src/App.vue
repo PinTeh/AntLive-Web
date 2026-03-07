@@ -4,7 +4,7 @@
   <a-config-provider :theme="{
     token: {
       // colorPrimary: '#00b96b',
-      borderRadius: 0,
+      borderRadius: 4,
     },
   }">
     <RouterView />

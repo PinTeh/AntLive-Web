@@ -40,6 +40,7 @@ const menuSelect = computed(() => {
   height: 100vh;
   // background-color: linear-gradient(#ffffff, #f5f5f5 28%);
   background-color: #fff;
+
   .content {
     // background-color: transparent;
     background-color: #fff;
@@ -49,9 +50,11 @@ const menuSelect = computed(() => {
     display: flex;
     flex-direction: column;
     min-height: 0;
+
     .content-breadcrumb {
       margin-bottom: 15px;
     }
+
     .subpage-body {
       flex: 1;
       min-height: 0;
@@ -84,6 +87,29 @@ const menuSelect = computed(() => {
         padding: 6px 10px;
         border-radius: 6px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      // :deep(.ant-table-body),
+      // :deep(.ant-table-content) {
+      //   scrollbar-width: thin;
+      //   scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+      // }
+
+      :deep(.ant-table-body::-webkit-scrollbar),
+      :deep(.ant-table-content::-webkit-scrollbar) {
+        width: 4px;
+        height: 4px;
+      }
+
+      :deep(.ant-table-body::-webkit-scrollbar-thumb),
+      :deep(.ant-table-content::-webkit-scrollbar-thumb) {
+        background: rgba(0, 0, 0, 0.24);
+        border-radius: 2px;
+      }
+
+      :deep(.ant-table-body::-webkit-scrollbar-thumb:hover),
+      :deep(.ant-table-content::-webkit-scrollbar-thumb:hover) {
+        background: rgba(0, 0, 0, 0.38);
       }
     }
   }
