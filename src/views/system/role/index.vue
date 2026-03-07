@@ -1,7 +1,7 @@
 <template>
     <div class="role-management">
         <!-- 左侧角色管理 -->
-        <div class="left-panel">
+        <div class="left-panel" ref="rolePanelRef">
             <div class="panel-header">
                 <h3>角色管理</h3>
                 <a-button type="primary" @click="handleAddRole" :icon="h(PlusOutlined)">新增角色</a-button>
@@ -24,8 +24,8 @@
                 </a-form>
             </div>
 
-            <a-table :dataSource="roleDataSource" :columns="roleColumns" :pagination="rolePagination" size="small"
-                @change="handleRoleTableChange" :row-class-name="getRowClassName" :custom-row="customRow">
+            <a-table :scroll="{ y: roleTableScrollY }" :dataSource="roleDataSource" :columns="roleColumns" :pagination="false" size="small"
+                :row-class-name="getRowClassName" :custom-row="customRow">
                 <template #bodyCell="{ column, record }">
                     <template v-if="column.key === 'level'">
                         <a-tag :color="getLevelColor(record.level)">等级 {{ record.level }}</a-tag>
@@ -39,6 +39,16 @@
                     </template>
                 </template>
             </a-table>
+            <a-pagination
+                :total="roleTotal"
+                :current="roleCurrent"
+                :page-size="rolePageSize"
+                size="small"
+                :show-size-changer="true"
+                :show-quick-jumper="true"
+                :page-size-options="['10', '20', '50', '100']"
+                @change="handleRolePageChange"
+            />
         </div>
 
         <!-- 右侧菜单分配 -->
@@ -123,13 +133,19 @@
 
 <script setup>
 import { PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue"
-import { onMounted, ref, computed, reactive, h, createVNode, watch } from "vue"
+import { onMounted, ref, reactive, h, createVNode, watch } from "vue"
 import { message, Modal } from "ant-design-vue"
 import systemApi from "@/api/system"
 import systemRoleApi from "@/api/system/systemRole"
+import { useTableScroll } from "@/composables/useTableScroll"
 
 const formRef = ref()
 const formState = reactive({})
+const { containerRef: rolePanelRef, tableScrollY: roleTableScrollY } = useTableScroll({
+    fixedSelectors: [".panel-header", ".search-wrapper"],
+    minY: 220,
+    extraOffset: 16,
+})
 
 // 角色相关状态
 const roleDataSource = ref([])
@@ -171,13 +187,6 @@ const assignedExpandedRowKeys = ref([]) // 控制已分配菜单表格展开行�
 const roleTotal = ref(0)
 const roleCurrent = ref(1)
 const rolePageSize = ref(10)
-const rolePagination = computed(() => ({
-    total: roleTotal.value,
-    current: roleCurrent.value,
-    pageSize: rolePageSize.value,
-    size: "small",
-}))
-
 // 角色表格列定义
 const roleColumns = ref([
     {
@@ -294,9 +303,11 @@ const getRoleMenus = (roleId) => {
 }
 
 // 表格事件处理
-const handleRoleTableChange = (pag, filters, sorter) => {
-    roleCurrent.value = pag.current
-    rolePageSize.value = pag.pageSize
+const handleRolePageChange = (page, size) => {
+    if (size && size !== rolePageSize.value) {
+        rolePageSize.value = size
+    }
+    roleCurrent.value = page
     getRoleData()
 }
 
@@ -595,8 +606,25 @@ const getLevelColor = (level) => {
     width: 500px;
     background: white;
     padding: 20px;
+    padding-bottom: 62px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.left-panel :deep(.ant-table-wrapper) {
+    flex: 1;
+    min-height: 0;
+}
+
+.left-panel :deep(.ant-pagination) {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    margin: 0 !important;
 }
 
 .right-panel {

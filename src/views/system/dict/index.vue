@@ -29,14 +29,13 @@
       </a-row>
     </a-form>
   </div>
-  <div class="content-wrapper">
+  <div class="content-wrapper" ref="containerRef">
     <div class="operation-wrapper">
       <a-tooltip title="search">
         <a-button type="primary" @click="handleAdd" :icon="h(PlusOutlined)">新增</a-button>
       </a-tooltip>
     </div>
-    <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" size="small"
-      @change="handleTableChange">
+    <a-table :scroll="{ y: tableScrollY }" :dataSource="dataSource" :columns="columns" :pagination="false" size="small">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'status'">
           <CellStatus :val="record.status" />
@@ -50,6 +49,16 @@
         </template>
       </template>
     </a-table>
+    <a-pagination
+      :total="total"
+      :current="current"
+      :page-size="pageSize"
+      size="middle"
+      :show-size-changer="true"
+      :show-quick-jumper="true"
+      :page-size-options="['10', '20', '50', '100']"
+      @change="handlePageChange"
+    />
   </div>
 
   <!-- 新增/编辑弹窗 -->
@@ -87,14 +96,16 @@
 
 <script setup>
 import { UpOutlined, DownOutlined, PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue"
-import { onMounted, ref, computed, reactive, h, createVNode } from "vue"
+import { onMounted, ref, reactive, h, createVNode } from "vue"
 import { message, Modal } from 'ant-design-vue'
 import CellStatus from '@/components/Common/CellStatus.vue'
 import systemApi from "@/api/system"
+import { useTableScroll } from "@/composables/useTableScroll"
 
 const expand = ref(false)
 const formRef = ref()
 const formState = reactive({})
+const { containerRef, tableScrollY } = useTableScroll()
 const onFinish = (values) => {
   console.log("Received values of form: ", values)
   console.log("formState: ", formState)
@@ -104,13 +115,6 @@ const onFinish = (values) => {
 const total = ref(0)
 const current = ref(1)
 const pageSize = ref(10)
-const pagination = computed(() => ({
-  total: total.value,
-  current: current.value,
-  pageSize: pageSize.value,
-  size: "middle",
-}))
-
 // 弹窗相关
 const modalVisible = ref(false)
 const modalTitle = ref('')
@@ -155,9 +159,11 @@ const getData = () => {
     })
 }
 
-const handleTableChange = (pag, filters, sorter) => {
-  current.value = pag.current
-  pageSize.value = pag.pageSize
+const handlePageChange = (page, size) => {
+  if (size && size !== pageSize.value) {
+    pageSize.value = size
+  }
+  current.value = page
   getData()
 }
 

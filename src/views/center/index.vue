@@ -17,7 +17,9 @@
         <a-menu :selectedKeys="current" :openKeys="current" mode="inline" :items="items" @click="handleClick" />
       </div>
       <div class="content">
-        <RouterView />
+        <div class="subpage-body">
+          <RouterView />
+        </div>
       </div>
     </div>
   </div>
@@ -148,6 +150,9 @@ const items = ref([
 .wrapper {
   width: 1300px;
   margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
   .portrait {
     width: 1300px;
@@ -206,9 +211,11 @@ const items = ref([
 
   .content-wrapper {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     margin-top: 20px;
     margin-bottom: 20px;
+    flex: 1;
+    min-height: 0;
 
     .menu-wrapper {
       width: 200px;
@@ -218,6 +225,31 @@ const items = ref([
       flex: 1;
       // background-color: #fff;
       margin-left: 10px;
+      position: relative;
+      min-height: 0;
+
+      .subpage-body {
+        position: relative;
+        height: 100%;
+        min-height: 0;
+        padding-bottom: 62px;
+
+        :deep(.ant-table-wrapper) {
+          position: static !important;
+        }
+
+        :deep(.ant-pagination) {
+          position: absolute !important;
+          right: 0;
+          bottom: 0;
+          margin: 0 !important;
+          z-index: 10;
+          background: rgba(255, 255, 255, 0.96);
+          padding: 6px 10px;
+          border-radius: 6px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+      }
     }
   }
 }

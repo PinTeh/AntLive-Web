@@ -1,58 +1,69 @@
 <template>
-  <div class="search-wrapper">
-    <a-form ref="formRef" class="ant-advanced-search-form" :model="formState" @finish="onFinish">
-      <a-row :gutter="24">
-        <a-col :span="6">
-          <a-form-item name="name" label="分类名称">
-            <a-input v-model:value="formState.name" placeholder="请输入分类名称" autocomplete="off"></a-input>
-          </a-form-item>
-        </a-col>
-        <a-col :span="6"></a-col>
-        <a-col :span="6"></a-col>
-        <a-col :span="6" style="text-align: right">
-          <a-button type="primary" html-type="submit">查询</a-button>
-          <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
-          <a style="font-size: 12px" @click="expand = !expand">
-            <template v-if="expand">
-              <UpOutlined />
-            </template>
-            <template v-else>
-              <DownOutlined />
-            </template>
-            展开
-          </a>
-        </a-col>
-      </a-row>
-    </a-form>
-  </div>
-  <div class="content-wrapper">
-    <div class="operation-wrapper">
-      <a-tooltip title="search">
-        <a-button type="primary" @click="handleAdd" :icon="h(PlusOutlined)">新增</a-button>
-      </a-tooltip>
+  <div class="page-wrapper">
+    <div class="search-wrapper">
+      <a-form ref="formRef" class="ant-advanced-search-form" :model="formState" @finish="onFinish">
+        <a-row :gutter="24">
+          <a-col :span="6">
+            <a-form-item name="name" label="分类名称">
+              <a-input v-model:value="formState.name" placeholder="请输入分类名称" autocomplete="off"></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6"></a-col>
+          <a-col :span="6"></a-col>
+          <a-col :span="6" style="text-align: right">
+            <a-button type="primary" html-type="submit">查询</a-button>
+            <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
+            <a style="font-size: 12px" @click="expand = !expand">
+              <template v-if="expand">
+                <UpOutlined />
+              </template>
+              <template v-else>
+                <DownOutlined />
+              </template>
+              展开
+            </a>
+          </a-col>
+        </a-row>
+      </a-form>
     </div>
-    <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" size="small"
-      @change="handleTableChange">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'icon'">
-          <a-flex align="center">
-            <a-avatar v-if="record.icon" shape="square" :size="25" :src="record.icon" alt="U" />
-            <a-avatar v-else :size="25" shape="square" :style="{ backgroundColor: getAvatarColor(record.name) }">{{
-              record.name.substring(0, 2) }}</a-avatar>
-          </a-flex>
+    <div class="content-wrapper" ref="containerRef">
+      <div class="operation-wrapper">
+        <a-tooltip title="search">
+          <a-button type="primary" @click="handleAdd" :icon="h(PlusOutlined)">新增</a-button>
+        </a-tooltip>
+      </div>
+      <a-table :scroll="{ y: tableScrollY }" :dataSource="dataSource" :columns="columns" :pagination="false" size="small">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'icon'">
+            <a-flex align="center">
+              <a-avatar v-if="record.icon" shape="square" :size="25" :src="record.icon" alt="U" />
+              <a-avatar v-else :size="25" shape="square" :style="{ backgroundColor: getAvatarColor(record.name) }">{{
+                record.name.substring(0, 2) }}</a-avatar>
+            </a-flex>
+          </template>
+          <template v-if="column.key === 'status'">
+            <CellStatus :val="record.status" />
+          </template>
+          <template v-else-if="column.key === 'action'">
+            <span>
+              <a @click="handleEdit(record)">编辑</a>
+              <a-divider type="vertical" />
+              <a style="color: red;" @click="handleDelete(record)">删除</a>
+            </span>
+          </template>
         </template>
-        <template v-if="column.key === 'status'">
-          <CellStatus :val="record.status" />
-        </template>
-        <template v-else-if="column.key === 'action'">
-          <span>
-            <a @click="handleEdit(record)">编辑</a>
-            <a-divider type="vertical" />
-            <a style="color: red;" @click="handleDelete(record)">删除</a>
-          </span>
-        </template>
-      </template>
-    </a-table>
+      </a-table>
+      <a-pagination
+        :total="total"
+        :current="current"
+        :page-size="pageSize"
+        size="middle"
+        :show-size-changer="true"
+        :show-quick-jumper="true"
+        :page-size-options="['10', '20', '50', '100']"
+        @change="handlePageChange"
+      />
+    </div>
   </div>
 
   <!-- 新增/编辑模态框 -->
@@ -97,6 +108,7 @@ import CellStatus from '@/components/Common/CellStatus.vue'
 import systemApi from "@/api/system"
 import { message, Modal } from "ant-design-vue"
 import { useStore } from "@/stores"
+import { useTableScroll } from "@/composables/useTableScroll"
 
 const expand = ref(false)
 const formRef = ref()
@@ -104,6 +116,7 @@ const formState = reactive({})
 const store = useStore()
 const loading = ref(false);
 const imageUrl = ref('');
+const { containerRef, tableScrollY } = useTableScroll()
 
 // 用户令牌，用于上传文件时的身份验证
 const userToken = computed(() => {
@@ -147,12 +160,6 @@ const modalFormRules = {
 const total = ref(0)
 const current = ref(1)
 const pageSize = ref(10)
-const pagination = computed(() => ({
-  total: total.value,
-  current: current.value,
-  pageSize: pageSize.value,
-  size: "middle",
-}))
 
 onMounted(() => {
   getData()
@@ -171,9 +178,11 @@ const getData = () => {
     })
 }
 
-const handleTableChange = (pag, filters, sorter) => {
-  current.value = pag.current
-  pageSize.value = pag.pageSize
+const handlePageChange = (page, size) => {
+  if (size && size !== pageSize.value) {
+    pageSize.value = size
+  }
+  current.value = page
   getData()
 }
 
@@ -416,6 +425,13 @@ const columns = ref([
 </script>
 
 <style lang="scss" scoped>
+.page-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .search-wrapper {
   .ant-advanced-search-form {
     .ant-form-item {
@@ -426,6 +442,14 @@ const columns = ref([
 
 .content-wrapper {
   margin-top: 20px;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  padding-bottom: 62px;
+
+  :deep(.ant-spin-nested-loading) {
+    position: static !important;
+  }
 
   .operation-wrapper {
     margin-bottom: 20px;

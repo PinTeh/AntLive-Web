@@ -71,6 +71,11 @@ const routes = [
                 meta: { title: "分类管理", icon: "dashboard", hidden: false }
             },
             {
+                path: "/system/live-center/live-room-manage",
+                component: () => import("@/views/system/room/index.vue"),
+                meta: { title: "直播间管理", icon: "dashboard", hidden: false }
+            },
+            {
                 path: "/system/bill",
                 component: () => import("@/views/system/bill/index.vue"),
                 meta: { title: "账单管理", icon: "dashboard", hidden: false }
@@ -79,6 +84,11 @@ const routes = [
                 path: "/system/system-manage/dictionary-manage",
                 component: () => import("@/views/system/dict/index.vue"),
                 meta: { title: "字典管理", icon: "dashboard", hidden: false }
+            },
+            {
+                path: "/system/system-manage/system-config",
+                component: () => import("@/views/system/config/index.vue"),
+                meta: { title: "系统配置", icon: "dashboard", hidden: false }
             },
             {
                 path: "/system/test-icons",

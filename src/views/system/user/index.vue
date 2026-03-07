@@ -1,80 +1,107 @@
 <template>
-  <div class="search-wrapper">
-    <a-form ref="formRef" class="ant-advanced-search-form" :model="formState" @finish="onFinish">
-      <a-row :gutter="24">
-        <a-col :span="6">
-          <a-form-item name="id" label="用户标识">
-            <a-input v-model:value="formState.id" placeholder="请输入用户标识" autocomplete=" off"></a-input>
-          </a-form-item>
-        </a-col>
-        <a-col :span="6">
-          <a-form-item name="username" label="用户名">
-            <a-input v-model:value="formState.username" placeholder="请输入用户名" autocomplete="off"></a-input>
-          </a-form-item>
-        </a-col>
-        <a-col :span="6">
-          <a-form-item name="nickname" label="昵称">
-            <a-input v-model:value="formState.nickname" placeholder="请输入用户昵称" autocomplete="off"></a-input>
-          </a-form-item>
-        </a-col>
-        <a-col :span="6" style="text-align: right">
-          <a-button type="primary" html-type="submit">查询</a-button>
-          <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
-          <a style="font-size: 12px" @click="expand = !expand">
-            <template v-if="expand">
-              <UpOutlined />
-            </template>
-            <template v-else>
-              <DownOutlined />
-            </template>
-            展开
-          </a>
-        </a-col>
-      </a-row>
-    </a-form>
+  <div class="page-wrapper">
+    <div class="search-wrapper">
+      <a-form ref="formRef" class="ant-advanced-search-form" :model="formState" @finish="onFinish">
+        <a-row :gutter="24">
+          <a-col :span="6">
+            <a-form-item name="id" label="用户标识">
+              <a-input v-model:value="formState.id" placeholder="请输入用户标识" autocomplete=" off"></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="username" label="用户名">
+              <a-input v-model:value="formState.username" placeholder="请输入用户名" autocomplete="off"></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="nickname" label="昵称">
+              <a-input v-model:value="formState.nickname" placeholder="请输入用户昵称" autocomplete="off"></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6" style="text-align: right">
+            <a-button type="primary" html-type="submit">查询</a-button>
+            <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </div>
+    <div class="content-wrapper" ref="containerRef">
+      <a-table :scroll="{ x: 1200, y: tableScrollY }" :dataSource="dataSource" :columns="columns" :pagination="false" size="small">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'nickname'">
+            <a-flex align="center">
+              <a-avatar v-if="record.avatar" :size="25" :src="record.avatar" alt="U" style="cursor: pointer;"
+                @click="handlePreviewAvatar(record.avatar)" />
+              <a-avatar v-else :size="20" style="color: #f56a00; background-color: #fde3cf; cursor: pointer;"
+                @click="handlePreviewAvatar(record.avatar)">
+                {{ record.nickname.substring(0, 2) }}
+              </a-avatar>
+              <section style="width: 10px"></section>
+              <span>{{ record.nickname }}</span>
+            </a-flex>
+          </template>
+          <template v-if="column.key === 'disabled'">
+            <CellStatus :val="record.disabled" />
+          </template>
+          <template v-if="column.key === 'sex'">
+            <CellSex :val="record.sex" />
+          </template>
+          <template v-else-if="column.key === 'action'">
+            <span>
+              <a @click="handleView(record)">详情</a>
+              <a-divider type="vertical" />
+              <a @click="handleEdit(record)">修改</a>
+              <a-divider type="vertical" />
+              <a v-if="record.disabled === 0" style="color: red;" @click="handleToggleStatus(record, -1)">封禁</a>
+              <a v-else style="color: green;" @click="handleToggleStatus(record, 0)">解禁</a>
+            </span>
+          </template>
+        </template>
+      </a-table>
+      <a-pagination :total="total" :current="current" :page-size="pageSize" size="middle" :show-size-changer="true"
+        :page-size-options="['10', '20', '50', '100']" @change="handlePageChange" />
+    </div>
   </div>
-  <div class="content-wrapper">
-    <a-table :scroll="{ x: 1200 }" :dataSource="dataSource" :columns="columns" :pagination="pagination" size="small"
-      @change="handleTableChange">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'nickname'">
-          <a-flex align="center">
-            <a-avatar v-if="record.avatar" :size="25" :src="record.avatar" alt="U" />
-            <a-avatar v-else :size="20" style="color: #f56a00; background-color: #fde3cf">{{
-              record.nickname.substring(0, 2) }}</a-avatar>
-            <section style="width: 10px"></section>
-            <span>{{ record.nickname }}</span>
-          </a-flex>
-        </template>
-        <template v-if="column.key === 'disabled'">
-          <CellStatus :val="record.disabled" />
-        </template>
-        <template v-if="column.key === 'sex'">
-          <CellSex :val="record.sex" />
-        </template>
-        <template v-else-if="column.key === 'action'">
-          <span>
-            <a-divider type="vertical" />
-            <a>详情</a>
-            <a-divider type="vertical" />
-            <a>修改</a>
-          </span>
-        </template>
-      </template>
-    </a-table>
-  </div>
+
+  <!-- 编辑模态框 -->
+  <Edit v-model:visible="modalVisible" :title="modalTitle" :edit-data="editData" @success="getData" />
+
+  <!-- 详情模态框 -->
+  <Detail v-model:visible="detailVisible" :detail-data="detailData" />
+
+  <!-- 头像预览模态框 -->
+  <a-modal :open="avatarPreviewVisible" title="头像预览" :footer="null" @cancel="handleAvatarPreviewCancel">
+    <img alt="头像" style="width: 100%" :src="avatarPreviewImage" />
+  </a-modal>
 </template>
 
 <script setup>
-import { UpOutlined, DownOutlined } from "@ant-design/icons-vue"
-import { onMounted, ref, computed, reactive } from "vue"
+import { ExclamationCircleOutlined } from "@ant-design/icons-vue"
+import { onMounted, ref, reactive, createVNode } from "vue"
 import CellStatus from '@/components/Common/CellStatus.vue'
 import CellSex from '@/components/Common/CellSex.vue'
 import systemUserApi from "@/api/systemUser"
+import { message, Modal } from "ant-design-vue"
+import Detail from "./Detail.vue"
+import Edit from "./Edit.vue"
+import { useTableScroll } from "@/composables/useTableScroll"
 
-const expand = ref(false)
 const formRef = ref()
 const formState = reactive({})
+
+// 模态框相关状态
+const modalVisible = ref(false)
+const modalTitle = ref("编辑用户")
+const editData = ref({})
+
+// 详情模态框
+const detailVisible = ref(false)
+const detailData = ref({})
+
+// 头像预览模态框
+const avatarPreviewVisible = ref(false)
+const avatarPreviewImage = ref("")
+const { containerRef, tableScrollY } = useTableScroll()
 const onFinish = (values) => {
   console.log("Received values of form: ", values)
   console.log("formState: ", formState)
@@ -84,13 +111,6 @@ const onFinish = (values) => {
 const total = ref(0)
 const current = ref(1)
 const pageSize = ref(10)
-const pagination = computed(() => ({
-  total: total.value,
-  current: current.value,
-  pageSize: pageSize.value,
-  size: "middle",
-}))
-
 onMounted(() => {
   getData()
 })
@@ -108,14 +128,63 @@ const getData = () => {
     })
 }
 
-const handleTableChange = (pag, filters, sorter) => {
-  current.value = pag.current
-  pageSize.value = pag.pageSize
+const handlePageChange = (page, size) => {
+  if (size && size !== pageSize.value) {
+    pageSize.value = size
+  }
+  current.value = page
   getData()
 }
 const handleReset = () => {
   formRef.value.resetFields()
   getData()
+}
+
+// 查看详情
+const handleView = (record) => {
+  detailData.value = { ...record }
+  detailVisible.value = true
+}
+
+// 编辑用户
+const handleEdit = (record) => {
+  modalTitle.value = "编辑用户"
+  editData.value = { ...record }
+  modalVisible.value = true
+}
+
+// 切换封禁状态
+const handleToggleStatus = (record, status) => {
+  const actionText = status === -1 ? '封禁' : '解禁'
+  Modal.confirm({
+    title: `确认${actionText}吗？`,
+    icon: createVNode(ExclamationCircleOutlined),
+    content: `确定要${actionText}用户"${record.nickname}"吗？`,
+    okText: '确定',
+    okType: status === -1 ? 'danger' : 'primary',
+    cancelText: '取消',
+    onOk() {
+      systemUserApi.toggleUserStatus({ id: record.id, disabled: status }).then(() => {
+        message.success(`${actionText}成功`)
+        getData()
+      }).catch((error) => {
+        message.error(`${actionText}失败: ` + (error.message || "未知错误"))
+      })
+    },
+  })
+}
+
+// 预览头像图片
+const handlePreviewAvatar = (avatarUrl) => {
+  if (!avatarUrl) return
+  avatarPreviewImage.value = avatarUrl
+  avatarPreviewVisible.value = true
+}
+
+// 关闭头像预览
+const handleAvatarPreviewCancel = () => {
+  avatarPreviewVisible.value = false
+  avatarPreviewImage.value = ""
 }
 
 const dataSource = ref([])
@@ -189,13 +258,20 @@ const columns = ref([
     title: "操作",
     key: "action",
     align: "center",
-    width: 120,
+    width: 180,
     fixed: "right",
   },
 ])
 </script>
 
 <style lang="scss" scoped>
+.page-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .search-wrapper {
   .ant-advanced-search-form {
     .ant-form-item {
@@ -206,5 +282,13 @@ const columns = ref([
 
 .content-wrapper {
   margin-top: 20px;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  padding-bottom: 62px;
+
+  :deep(.ant-spin-nested-loading) {
+    position: static !important;
+  }
 }
 </style>
