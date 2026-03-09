@@ -21,12 +21,35 @@
           <a-col :span="6" style="text-align: right">
             <a-button type="primary" html-type="submit">查询</a-button>
             <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
+            <a v-if="showExpand" style="font-size: 12px" @click="expand = !expand">
+              <template v-if="expand">
+                <UpOutlined />
+                收起
+              </template>
+              <template v-else>
+                <DownOutlined />
+                展开
+              </template>
+            </a>
+          </a-col>
+        </a-row>
+        <a-row v-show="expand" :gutter="24" style="margin-top: 20px;">
+          <a-col :span="6">
+            <a-form-item name="mobile" label="手机">
+              <a-input v-model:value="formState.mobile" placeholder="请输入手机号" autocomplete="off"></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item name="email" label="邮箱">
+              <a-input v-model:value="formState.email" placeholder="请输入邮箱" autocomplete="off"></a-input>
+            </a-form-item>
           </a-col>
         </a-row>
       </a-form>
     </div>
     <div class="content-wrapper" ref="containerRef">
-      <a-table :scroll="{ x: 1200, y: tableScrollY }" :dataSource="dataSource" :columns="columns" :pagination="false" size="small">
+      <a-table :scroll="{ x: 1200, y: tableScrollY }" :dataSource="dataSource" :columns="columns" :pagination="false"
+        size="small">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'nickname'">
             <a-flex align="center">
@@ -76,7 +99,7 @@
 </template>
 
 <script setup>
-import { ExclamationCircleOutlined } from "@ant-design/icons-vue"
+import { UpOutlined, DownOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue"
 import { onMounted, ref, reactive, createVNode } from "vue"
 import CellStatus from '@/components/Common/CellStatus.vue'
 import CellSex from '@/components/Common/CellSex.vue'
@@ -85,8 +108,10 @@ import { message, Modal } from "ant-design-vue"
 import Detail from "./Detail.vue"
 import Edit from "./Edit.vue"
 import { useTableScroll } from "@/composables/useTableScroll"
+import { useSearchExpand } from "@/composables/useSearchExpand"
 
 const formRef = ref()
+const { expand, showExpand } = useSearchExpand(formRef)
 const formState = reactive({})
 
 // 模态框相关状态
@@ -103,8 +128,6 @@ const avatarPreviewVisible = ref(false)
 const avatarPreviewImage = ref("")
 const { containerRef, tableScrollY } = useTableScroll()
 const onFinish = (values) => {
-  console.log("Received values of form: ", values)
-  console.log("formState: ", formState)
   getData()
 }
 
@@ -276,6 +299,20 @@ const columns = ref([
   .ant-advanced-search-form {
     .ant-form-item {
       margin-bottom: 0px;
+    }
+
+    :deep(.ant-form-item .ant-row) {
+      flex-wrap: nowrap;
+    }
+
+    :deep(.ant-form-item-label) {
+      width: 84px;
+      text-align: right;
+    }
+
+    :deep(.ant-form-item-control) {
+      flex: 1;
+      min-width: 0;
     }
   }
 }

@@ -16,7 +16,7 @@
                 <a-col :span="6" style="text-align: right">
                     <a-button type="primary" html-type="submit">查询</a-button>
                     <a-button style="margin: 0 8px" @click="handleReset">重置</a-button>
-                    <a style="font-size: 12px" @click="expand = !expand">
+                    <a v-if="showExpand" style="font-size: 12px" @click="expand = !expand">
                         <template v-if="expand">
                             <UpOutlined />
                         </template>
@@ -55,9 +55,10 @@ import { onMounted, ref, reactive } from "vue"
 import systemApi from "@/api/system"
 import systemMessageApi from "@/api/system/systemMessage"
 import { useTableScroll } from "@/composables/useTableScroll"
+import { useSearchExpand } from "@/composables/useSearchExpand"
 
-const expand = ref(false)
 const formRef = ref()
+const { expand, showExpand } = useSearchExpand(formRef)
 const formState = reactive({})
 const { containerRef, tableScrollY } = useTableScroll()
 const onFinish = (values) => {
@@ -151,10 +152,24 @@ const columns = ref([
 <style lang="scss" scoped>
 .search-wrapper {
     .ant-advanced-search-form {
-        .ant-form-item {
-            margin-bottom: 0px;
-        }
+    .ant-form-item {
+      margin-bottom: 0px;
     }
+
+    :deep(.ant-form-item .ant-row) {
+      flex-wrap: nowrap;
+    }
+
+    :deep(.ant-form-item-label) {
+      width: 84px;
+      text-align: right;
+    }
+
+    :deep(.ant-form-item-control) {
+      flex: 1;
+      min-width: 0;
+    }
+  }
 }
 
 .content-wrapper {
