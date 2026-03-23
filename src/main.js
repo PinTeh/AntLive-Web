@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { message } from 'ant-design-vue'
 import './style.css'
 import App from './App.vue'
 import { createPinia } from 'pinia'
@@ -18,6 +19,11 @@ pinia.use(({ store }) => {
     store.$reset = () => {
         store.$patch(initialState);
     };
+});
+
+message.config({
+    duration: 1.5,
+    maxCount: 1,
 });
 
 const app = createApp(App)

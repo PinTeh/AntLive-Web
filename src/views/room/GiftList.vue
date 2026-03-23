@@ -1,6 +1,7 @@
 <template>
   <div class="gift-wrapper">
-    <a-popover overlayClassName="gift-popover" placement="topLeft" trigger="hover" v-for="(item, index) in giftList" :key="item.id">
+    <a-popover overlayClassName="gift-popover" placement="topLeft" trigger="hover" v-for="(item, index) in giftList"
+      :key="item.id">
       <template #content>
         <a-flex>
           <img :src="item.icon" alt="" />
@@ -28,7 +29,7 @@
   </div>
   <a-divider type="vertical" style="height: 100%" />
   <div class="wallet-wrapper">
-    <div class="footer-item" vertical align="center">
+    <div class="footer-item" vertical align="center" @click="handleWalletClick">
       <img src="../../../src/assets/img/开心果.png" alt="" />
       <span price style="margin-top: 10px">{{ isLogin ? `余额:${wallet.balance || "0"}个` : "未登录" }}</span>
     </div>
@@ -40,6 +41,7 @@ import giftApi from "@/api/gift"
 import walletApi from "@/api/wallet"
 import { useStore } from "@/stores"
 import { onMounted, ref, defineProps, computed } from "vue"
+import { useRouter } from "vue-router"
 
 onMounted(async () => {
   getGiftList()
@@ -50,6 +52,7 @@ onMounted(async () => {
 
 const giftList = ref([])
 const wallet = ref({})
+const router = useRouter()
 const isLogin = computed(() => {
   return useStore().user().isLogin
 })
@@ -60,6 +63,12 @@ const props = defineProps({
     default: undefined,
   },
 })
+
+const handleWalletClick = () => {
+  if (isLogin.value) {
+    router.push("/center/dollar/wallet")
+  }
+}
 
 const handleItemClick = async (num, item) => {
   // TODO: 调用购买接口
@@ -99,9 +108,12 @@ const getWallet = async () => {
     cursor: pointer;
   }
 }
+
 .wallet-wrapper {
   width: 100px;
+  cursor: pointer;
 }
+
 .footer-item {
   width: 90px;
   height: 100%;
@@ -109,40 +121,49 @@ const getWallet = async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   img {
     width: 40px;
     height: 40px;
     object-fit: cover;
   }
+
   span[name] {
     margin-top: 5px;
     font-size: 14px;
     color: $font-color;
   }
+
   span[price] {
     font-size: 12px;
     color: $font-color-light;
   }
 }
+
 .footer-item:hover {
   img {
     transition: transform 0.4s ease;
     animation: shake 0.4s ease-in-out;
   }
 }
+
 @keyframes shake {
   0% {
     transform: translate(0, 0);
   }
+
   25% {
     transform: translate(0, -3px);
   }
+
   50% {
     transform: translate(0, 0);
   }
+
   75% {
     transform: translate(0, 3px);
   }
+
   100% {
     transform: translate(0, 0);
   }

@@ -10,7 +10,12 @@
                 <span class="live-title">{{ roomInfo.title }}</span>
               </a-flex>
               <a-flex class="upper-row-right">
-                <a-button class="follow-btn" size="small" @click="handleFollowBtnClick">
+                <a-button class="follow-btn" :class="{ 'followed-btn': roomExtraInfo.follow }" size="small"
+                  @click="handleFollowBtnClick">
+                  <template #icon>
+                    <CheckCircleOutlined v-if="roomExtraInfo.follow" />
+                    <HeartOutlined v-else />
+                  </template>
                   {{ roomExtraInfo.follow ? "已关注" : "关注" }}
                 </a-button>
               </a-flex>
@@ -47,6 +52,7 @@ import GiftList from "./GiftList.vue"
 import roomApi from "@/api/room"
 import watchApi from "@/api/watch"
 import SVGA from "svgaplayerweb"
+import { CheckCircleOutlined, HeartOutlined } from "@ant-design/icons-vue"
 
 const router = useRouter()
 const roomId = computed(() => {
@@ -106,7 +112,7 @@ const playSvga = (url) => {
       svgaPlayer.value.loops = 1
       svgaPlayer.value.setVideoItem(videoItem)
       svgaPlayer.value.startAnimation()
-      svgaPlayer.value.onFinished = () => {}
+      svgaPlayer.value.onFinished = () => { }
     })
   } else {
     message.error("init SVGA error")
@@ -146,43 +152,69 @@ const handleSendGift = (item) => {
   width: 1220px;
   margin: 0 auto;
   margin-top: 20px;
+
   .room-play {
     width: 900px;
+
     .room-play-header {
       height: 100px;
       padding: 20px;
       background-color: #fff;
+
       .avatar {
         width: 60px;
         height: 60px;
         border-radius: 50%;
         object-fit: cover;
       }
+
       .rows-content {
         width: 100%;
         margin-left: 20px;
+
         .upper-row {
           width: 100%;
+
           .live-title {
             font-size: 16px;
             font-weight: bold;
           }
+
           .follow-btn {
             margin-left: 20px;
+            width: 88px;
+            height: 30px;
           }
+
+          .followed-btn {
+            background-color: #f5f5f5;
+            color: #666;
+            border-color: #d9d9d9;
+
+            &:hover {
+              background-color: #e8e8e8;
+              color: #555;
+              border-color: #c0c0c0;
+            }
+          }
+
           .upper-row-left {
             flex: 1;
           }
+
           .upper-row-right {
-            width: 100px;
+            width: 120px;
           }
         }
+
         .lower-row {
           margin-top: 10px;
+
           .live-describe {
             font-size: 14px;
             color: $font-color-light;
           }
+
           .live-tag {
             font-size: 14px;
             color: $font-color-light;
@@ -191,10 +223,12 @@ const handleSendGift = (item) => {
         }
       }
     }
+
     .room-play-main {
       height: 510px;
       background-color: #2a2a2a;
       position: relative;
+
       span[note] {
         color: #a4a4a4;
         font-size: 16px;
@@ -204,19 +238,23 @@ const handleSendGift = (item) => {
         transform: translate(-50%, -50%);
       }
     }
+
     .room-play-footer {
       background-color: #fff;
       height: 100px;
     }
   }
+
   .room-chat {
     width: 300px;
     margin-left: 10px;
   }
 }
+
 .gift-popover {
   background-color: red !important;
 }
+
 #svga-wrap {
   width: 100%;
   height: 510px;
@@ -233,28 +271,34 @@ const handleSendGift = (item) => {
     width: 300px;
     height: 120px;
   }
+
   img {
     width: 45px;
     height: 45px;
     object-fit: cover;
     margin-right: 10px;
   }
+
   span[name] {
     font-size: 16px;
     color: $font-color;
   }
+
   span[price] {
     font-size: 14px;
     color: orange;
     margin-left: 10px;
   }
+
   span[describe] {
     font-size: 12px;
     color: $font-color-light;
   }
+
   .ant-divider {
     margin: 10px 0px;
   }
+
   .ant-btn {
     width: 65px;
     margin-right: 10px;

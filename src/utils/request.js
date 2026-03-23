@@ -56,7 +56,7 @@ service.interceptors.response.use((response) => {
             // });
         } else {
             // 系统异常
-            message.error(msg || 'This is an error message', 5);
+            message.error(msg || 'This is an error message', 2.5);
         }
         return Promise.reject(new Error(msg || 'Error'));
     }
@@ -78,7 +78,7 @@ service.interceptors.response.use((response) => {
             onCancel() { },
         });
     } else {
-        message.error(msg || '网络异常，请稍后再重新尝试。', 5);
+        message.error(msg || '网络异常，请稍后再重新尝试。', 2.5);
         return Promise.reject(new Error(msg || 'Network Error'));
     }
 });

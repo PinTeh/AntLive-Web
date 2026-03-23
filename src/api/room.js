@@ -25,4 +25,11 @@ export default {
             params,
         })
     },
+    getIntimacyRank(params) {
+        return request({
+            url: '/api/v1/room/intimacy/rank',
+            method: 'get',
+            params,
+        })
+    },
 }

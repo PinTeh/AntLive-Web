@@ -1,38 +1,6 @@
 <template>
   <div class="live-settings">
     <a-flex>
-      <div class="info-wrapper">
-        <a-page-header title="直播间信息" sub-title="Live Room Info">
-          <a-descriptions :column="1">
-            <a-descriptions-item label="直播间 ID">
-              <span class="link" title="">{{ roomInfo.id }}</span>
-            </a-descriptions-item>
-            <a-descriptions-item label="直播间链接">
-              <span class="link" title="">http://live.bilibili.com/10086</span>
-            </a-descriptions-item>
-            <a-descriptions-item label="直播间状态">
-              <a-tag v-if="roomInfo.disabled !== 0" :bordered="false" color="error">封禁中</a-tag>
-              <a-tag v-else :bordered="false" color="green">正常</a-tag>
-            </a-descriptions-item>
-          </a-descriptions>
-        </a-page-header>
-      </div>
-      <div class="cover-wrapper">
-        <a-page-header title="封面设置" sub-title="Cover Settings">
-          <a-upload v-model:file-list="fileList" name="file" list-type="picture-card" class="avatar-uploader"
-            :show-upload-list="false" action="/api/api/v1/upload/room/cover" :before-upload="beforeUpload"
-            @change="handleChange">
-            <img class="cover-img" v-if="imageUrl" :src="imageUrl" alt="avatar" />
-            <div v-else>
-              <loading-outlined v-if="loading"></loading-outlined>
-              <plus-outlined v-else></plus-outlined>
-              <div class="ant-upload-text">Upload</div>
-            </div>
-          </a-upload>
-        </a-page-header>
-      </div>
-    </a-flex>
-    <a-flex>
       <div class="live-wrapper">
         <a-page-header title="开始直播" sub-title="Live Settings">
           <a-flex>
@@ -61,6 +29,38 @@
               停止直播
             </a-button>
           </a-flex>
+        </a-page-header>
+      </div>
+    </a-flex>
+    <a-flex>
+      <div class="info-wrapper">
+        <a-page-header title="直播间信息" sub-title="Live Room Info">
+          <a-descriptions :column="1">
+            <a-descriptions-item label="直播间 ID">
+              <span class="link" title="">{{ roomInfo.id }}</span>
+            </a-descriptions-item>
+            <a-descriptions-item label="直播间链接">
+              <span class="link" title="">http://live.bilibili.com/10086</span>
+            </a-descriptions-item>
+            <a-descriptions-item label="直播间状态">
+              <a-tag v-if="roomInfo.disabled !== 0" :bordered="false" color="error">封禁中</a-tag>
+              <a-tag v-else :bordered="false" color="green">正常</a-tag>
+            </a-descriptions-item>
+          </a-descriptions>
+        </a-page-header>
+      </div>
+      <div class="cover-wrapper">
+        <a-page-header title="封面设置" sub-title="Cover Settings">
+          <a-upload v-model:file-list="fileList" name="file" list-type="picture-card" class="avatar-uploader"
+            :show-upload-list="false" action="/api/api/v1/upload/room/cover" :before-upload="beforeUpload"
+            @change="handleChange">
+            <img class="cover-img" v-if="imageUrl" :src="imageUrl" alt="avatar" />
+            <div v-else>
+              <loading-outlined v-if="loading"></loading-outlined>
+              <plus-outlined v-else></plus-outlined>
+              <div class="ant-upload-text">Upload</div>
+            </div>
+          </a-upload>
         </a-page-header>
       </div>
     </a-flex>
@@ -257,6 +257,7 @@ const onFinishFailed = (errorInfo) => {
   flex-direction: column;
 
   .info-wrapper {
+    margin-top: 10px;
     background-color: #fff;
     flex: 1;
 
@@ -269,6 +270,7 @@ const onFinishFailed = (errorInfo) => {
   }
 
   .cover-wrapper {
+    margin-top: 10px;
     margin-left: 10px;
     background-color: #fff;
 
@@ -285,7 +287,6 @@ const onFinishFailed = (errorInfo) => {
   }
 
   .live-wrapper {
-    margin-top: 10px;
     width: 100%;
     background-color: #fff;
 

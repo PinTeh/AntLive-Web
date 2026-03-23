@@ -1,5 +1,7 @@
 <script setup>
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { useRouter} from "vue-router"
+import ChatApi from "@/api/chat"
 
 const router = useRouter()
 const props = defineProps({
@@ -8,10 +10,64 @@ const props = defineProps({
     default: () => ({}),
   }
 })
+const roomId = computed(() => Number(props.room?.id || 0))
+const popularity = ref(0)
+const popularityTimer = ref(null)
 
 const handleItemClick = () => {
     router.push({ path: `/room/${props.room.id}`})
 }
+
+const formatPopularity = (value) => {
+  const count = Number(value || 0)
+  if (!Number.isFinite(count) || count <= 0) {
+    return "0"
+  }
+  if (count >= 10000) {
+    return `${(count / 10000).toFixed(1).replace(/\.0$/, "")}万`
+  }
+  return `${count}`
+}
+
+const loadPopularity = async () => {
+  if (!roomId.value) {
+    popularity.value = 0
+    return
+  }
+  try {
+    const res = await ChatApi.getPopularity({ roomId: roomId.value })
+    popularity.value = Number(res?.data || 0)
+  } catch (error) {
+    popularity.value = Number(props.room?.popularity || 0)
+  }
+}
+
+const clearPopularityTimer = () => {
+  if (popularityTimer.value) {
+    clearInterval(popularityTimer.value)
+    popularityTimer.value = null
+  }
+}
+
+const startPopularityPolling = () => {
+  clearPopularityTimer()
+  loadPopularity()
+  popularityTimer.value = setInterval(() => {
+    loadPopularity()
+  }, 10000)
+}
+
+onMounted(() => {
+  startPopularityPolling()
+})
+
+watch(roomId, () => {
+  startPopularityPolling()
+})
+
+onBeforeUnmount(() => {
+  clearPopularityTimer()
+})
 </script>
 
 <template>
@@ -28,7 +84,7 @@ const handleItemClick = () => {
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-renqi"></use>
           </svg>
-          <span>{{room.popularity || '1'}}万</span>
+          <span>{{ formatPopularity(popularity) }}</span>
         </span>
       </div>
     </div>

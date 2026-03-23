@@ -1,29 +1,47 @@
 <template>
   <div class="chat-wrapper">
-    <div class="chat-header">
-      <div class="rank-item" v-for="item in rank" :key="item.userId">
-        <img class="avatar" :src="item.avatar" />
-        <span class="name">{{ item.nickName }}</span>
-        <span class="charm">{{ item.charm }}</span>
+    <div class="chat-top-section" @mouseleave="showRankDropdown = false">
+      <div class="chat-header">
+        <div class="rank-toolbar">
+          <span class="rank-title">本月亲密榜</span>
+          <div class="rank-dropdown-wrapper" @mouseenter="showRankDropdown = true">
+            <a-button type="link" size="small">TOP 10</a-button>
+          </div>
+        </div>
+        <div class="rank-board">
+          <div class="rank-item" :class="`rank-item-${item.rankNo}`" v-for="item in displayRanks" :key="item.key">
+            <div class="rank-badge">NO.{{ item.rankNo }}</div>
+            <img class="avatar" :src="item.avatar || fallbackAvatar" />
+            <span class="name">{{ item.nickName }}</span>
+            <span class="charm">{{ formatIntimacy(item.intimacyValue) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="rank-dropdown-list" :class="{ 'is-open': showRankDropdown }" @mouseenter="showRankDropdown = true">
+        <div class="rank-dropdown-item" v-for="item in rankList" :key="item.userId">
+          <div class="rank-dropdown-left">
+            <span class="rank-dropdown-no" :class="`rank-no-${item.rankNo}`">{{ item.rankNo }}</span>
+            <img class="rank-dropdown-avatar" :src="item.avatar || fallbackAvatar" />
+            <span class="rank-dropdown-name">{{ item.nickName || `观众${item.userId}` }}</span>
+          </div>
+          <span class="rank-dropdown-value">{{ formatIntimacy(item.intimacyValue) }}</span>
+        </div>
+        <a-empty v-if="rankList.length === 0" description="本月还没有亲密值记录" />
       </div>
     </div>
     <div class="chat-main" ref="scrollContainer" @scroll="handleScroll">
       <a-list size="small" :data-source="data">
         <template #renderItem="{ item }">
-          <a-list-item><MessageItem :data="item" /></a-list-item>
+          <a-list-item>
+            <MessageItem :data="item" />
+          </a-list-item>
         </template>
       </a-list>
     </div>
     <div class="chat-footer">
       <a-flex vertical>
-        <a-textarea
-          class="chat-box"
-          v-model:value="messageText"
-          :placeholder="isLogin ? '发个弹幕呗～' : '需要登陆才能发送弹幕哦～'"
-          show-count
-          :maxlength="20"
-          :disabled="!isLogin"
-          :auto-size="{ minRows: 2, maxRows: 2 }" />
+        <a-textarea class="chat-box" v-model:value="messageText" :placeholder="isLogin ? '发个弹幕呗～' : '需要登陆才能发送弹幕哦～'"
+          show-count :maxlength="20" :disabled="!isLogin" :auto-size="{ minRows: 2, maxRows: 2 }" />
         <div class="chat-btn-wrapper">
           <span class="popularity">{{ popularity || 0 }}人在线</span>
           <a-button type="primary" size="small" @click="handleMessageSend" :disabled="!isLogin">发送</a-button>
@@ -31,6 +49,7 @@
       </a-flex>
     </div>
   </div>
+
 </template>
 
 <script setup>
@@ -38,6 +57,7 @@ import MessageItem from "./MessageItem.vue"
 import { onBeforeMount, onMounted, ref, computed, nextTick, watch, onBeforeUnmount } from "vue"
 import { useStore } from "@/stores"
 import ChatApi from "@/api/chat"
+import roomApi from "@/api/room"
 
 const props = defineProps({
   roomId: {
@@ -56,27 +76,9 @@ const roomId = computed(() => props.roomId)
 const store = useStore()
 const isLogin = useStore().user().isLogin
 const popularity = ref(1)
-
-const rank = ref([
-  {
-    userId: 1,
-    nickName: "小老虎",
-    avatar: "http://q1.qlogo.cn/g?b=qq&nk=363353005&s=100",
-    charm: 826,
-  },
-  {
-    userId: 2,
-    nickName: "那个叫啥啥",
-    avatar: "http://q1.qlogo.cn/g?b=qq&nk=794409767&s=100",
-    charm: 1396,
-  },
-  {
-    userId: 3,
-    nickName: "飞哥",
-    avatar: "http://q1.qlogo.cn/g?b=qq&nk=1109956029&s=100",
-    charm: 126,
-  },
-])
+const rankList = ref([])
+const showRankDropdown = ref(false)
+const fallbackAvatar = "https://dummyimage.com/96x96/f5f5f5/999999.png&text=TOP"
 
 let websocket = null
 const reconnectTimer = ref()
@@ -86,10 +88,26 @@ const popularityInterval = ref()
 const messageText = ref("")
 
 const data = ref([])
+const createPlaceholderRank = (rankNo) => ({
+  key: `placeholder-${rankNo}`,
+  rankNo,
+  nickName: ["待上榜", "虚位以待", "冲榜中"][rankNo - 1] || "待上榜",
+  avatar: "",
+  intimacyValue: 0,
+})
+
+const displayRanks = computed(() => {
+  const topThree = [1, 2, 3].map((rankNo) => {
+    const item = rankList.value[rankNo - 1]
+    return item ? { ...item, key: item.userId } : createPlaceholderRank(rankNo)
+  })
+  return [topThree[1], topThree[0], topThree[2]]
+})
 
 onMounted(async () => {
   initWebSocket()
   getPopularity()
+  getIntimacyRank()
 })
 
 onBeforeMount(() => {
@@ -114,7 +132,7 @@ const scrollToBottom = () => {
   })
 }
 
-const handleScroll = () => {}
+const handleScroll = () => { }
 
 /**
  * 发送消息
@@ -129,6 +147,22 @@ const handleMessageSend = () => {
     roomId: roomId.value,
     text,
   })
+}
+
+const getIntimacyRank = async () => {
+  const res = await roomApi.getIntimacyRank({ roomId: roomId.value })
+  rankList.value = (res.data || []).map((item, index) => ({
+    ...item,
+    rankNo: item.rankNo || index + 1,
+  }))
+}
+
+const formatIntimacy = (value) => {
+  const num = Number(value || 0)
+  if (Number.isInteger(num)) {
+    return `${num}`
+  }
+  return `${num.toFixed(2)}`
 }
 
 /**
@@ -170,6 +204,13 @@ const initWebSocket = () => {
   websocket.onmessage = (event) => {
     console.log("Message from server:", event.data)
     let message = JSON.parse(event.data)
+    if (message.method === "intimacyRank") {
+      rankList.value = (message.data || []).map((item, index) => ({
+        ...item,
+        rankNo: item.rankNo || index + 1,
+      }))
+      return
+    }
     // 处理礼物
     if (message.method === "giftMessage") {
       emits("sendGift", message.data)
@@ -250,75 +291,292 @@ const close = () => {
   background-color: #fff;
   display: flex;
   flex-direction: column;
+  position: relative;
+
+  .chat-top-section {
+    position: relative;
+    z-index: 2;
+  }
+
   .chat-header {
-    height: 120px;
+    height: 158px;
     background-color: #fff;
-    display: flex;
-    .rank-item {
-      flex: 1;
-      height: 130px;
-      text-align: center;
-      .avatar {
-        border: rgb(215, 215, 215) 2px solid;
-        margin-top: 16px;
-        border-radius: 50%;
-        height: 45px;
+    padding: 12px 10px 8px;
+
+    .rank-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      position: relative;
+
+      .rank-title {
+        font-size: 14px;
+        font-weight: 600;
       }
-      .name {
-        display: block;
-        font-size: 12px;
-        margin-top: 8px;
-      }
-      .charm {
-        line-height: 25px;
-        color: #ec8303;
-        font-size: 12px;
-      }
-    }
-    .rank-item:nth-child(2) {
-      .avatar {
-        border: gold 2px solid;
+
+      .rank-dropdown-wrapper {
+        position: relative;
       }
     }
   }
-  .chat-main {
-    height: 480px;
+
+  .rank-dropdown-list {
+    position: absolute;
+    top: calc(100% - 4px);
+    left: 10px;
+    right: 10px;
+    max-height: 320px;
     overflow-y: auto;
-    &::-webkit-scrollbar {
-      display: none;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+
+    &.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
     }
-    ::v-deep(.ant-list-item) {
-      padding: 5px 8px;
-      border: none;
+
+    .rank-dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: #fafafa;
+      }
+    }
+
+    .rank-dropdown-left {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .rank-dropdown-no {
+      width: 22px;
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+
+      &.rank-no-1 {
+        color: #f3d26b;
+        font-weight: 600;
+      }
+
+      &.rank-no-2 {
+        color: #c8d0da;
+        font-weight: 600;
+      }
+
+      &.rank-no-3 {
+        color: #d8a478;
+        font-weight: 600;
+      }
+    }
+
+    .rank-dropdown-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+      margin-left: 4px;
+    }
+
+    .rank-dropdown-name {
+      font-size: 13px;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rank-dropdown-value {
+      font-size: 12px;
+      color: #ec8303;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    ::v-deep(.ant-empty) {
+      margin: 16px 0;
+
+      .ant-empty-description {
+        font-size: 12px;
+        color: #999;
+      }
     }
   }
-  .chat-footer {
-    flex: 1;
-    padding: 10px;
-    .chat-box {
-      width: 100%;
+}
+
+.rank-board {
+  display: flex;
+  gap: 8px;
+}
+
+.rank-item {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 10px 6px 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #fff8ef 0%, #fff 100%);
+  border: 1px solid #f6e3c7;
+
+  .rank-badge {
+    font-size: 11px;
+    color: #8c6b35;
+    margin-bottom: 6px;
+  }
+
+  .avatar {
+    width: 42px;
+    height: 42px;
+    border: 2px solid #d7d7d7;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .name {
+    display: block;
+    font-size: 12px;
+    margin-top: 8px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .charm {
+    display: block;
+    margin-top: 4px;
+    color: #ec8303;
+    font-size: 12px;
+  }
+}
+
+.rank-item-1 {
+  background: linear-gradient(180deg, #fff4cf 0%, #fff 100%);
+  border-color: #f3d26b;
+
+  .avatar {
+    border: gold 2px solid;
+  }
+}
+
+.rank-item-2 .avatar {
+  border-color: #c8d0da;
+}
+
+.rank-item-3 .avatar {
+  border-color: #d8a478;
+}
+
+.chat-main {
+  height: 442px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  ::v-deep(.ant-list-item) {
+    padding: 5px 8px;
+    border: none;
+  }
+}
+
+.chat-footer {
+  flex: 1;
+  padding: 10px;
+
+  .chat-box {
+    width: 100%;
+  }
+
+  .chat-btn-wrapper {
+    margin-top: 10px;
+    text-align: right;
+
+    ::v-deep(.ant-btn) {
+      width: 75px;
+      // color: $font-color-light;
     }
-    .chat-btn-wrapper {
-      margin-top: 10px;
-      text-align: right;
-      ::v-deep(.ant-btn) {
-        width: 75px;
-        // color: $font-color-light;
-      }
-      .popularity {
-        float: left;
-        color: $font-color-light;
-        font-size: 12px;
-        margin: 5px 0px 0px 0px;
-      }
-    }
-    ::v-deep(.ant-input-textarea-show-count::after) {
-      position: absolute;
-      top: 35px;
-      right: 6px;
-      font-size: 12px;
+
+    .popularity {
+      float: left;
       color: $font-color-light;
+      font-size: 12px;
+      margin: 5px 0px 0px 0px;
     }
+  }
+
+  ::v-deep(.ant-input-textarea-show-count::after) {
+    position: absolute;
+    top: 35px;
+    right: 6px;
+    font-size: 12px;
+    color: $font-color-light;
+  }
+}
+
+.rank-modal {
+  .rank-modal-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .rank-no {
+    width: 38px;
+    font-size: 13px;
+    color: #999;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+
+  .name {
+    color: #333;
+  }
+
+  .value {
+    color: #ec8303;
+    font-weight: 600;
   }
 }
 </style>
