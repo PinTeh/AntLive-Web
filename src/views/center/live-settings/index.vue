@@ -90,7 +90,7 @@
         </a-page-header>
       </div>
     </a-flex>
-    <LiveStats v-model="modalOpen" />
+    <LiveStats v-model="modalOpen" :stats="stopLiveStats" />
   </div>
 </template>
 
@@ -109,6 +109,12 @@ const saveBtnLoading = ref(false)
 const imageUrl = ref("")
 const roomInfo = ref({})
 const roomLiveInfo = ref({})
+const stopLiveStats = ref({
+  presentAmount: 0,
+  danMuCount: 0,
+  totalViewCount: 0,
+  liveDurationSeconds: 0,
+})
 const formState = reactive({
   title: "",
   introduce: "",
@@ -190,6 +196,12 @@ const startLive = () => {
 const stopLive = () => {
   liveAPI.stopLive().then((res) => {
     if (res.code === 0) {
+      stopLiveStats.value = {
+        presentAmount: Number(res.data?.presentAmount || 0),
+        danMuCount: Number(res.data?.danMuCount || 0),
+        totalViewCount: Number(res.data?.totalViewCount || 0),
+        liveDurationSeconds: Number(res.data?.liveDurationSeconds || 0),
+      }
       modalOpen.value = true
       getLiveStatus()
     } else {

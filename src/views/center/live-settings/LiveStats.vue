@@ -7,25 +7,25 @@
     <a-row justify="space-evenly">
       <a-col :span="4">
         <a-flex vertical justify="center" class="item">
-          <span>0元</span>
+          <span>{{ presentAmountText }}</span>
           <span>开心果流水</span>
         </a-flex>
       </a-col>
       <a-col :span="4">
         <a-flex vertical justify="center" class="item">
-          <span>0条</span>
+          <span>{{ `${stats.danMuCount || 0}条` }}</span>
           <span>弹幕数</span>
         </a-flex>
       </a-col>
       <a-col :span="4">
         <a-flex vertical justify="center" class="item">
-          <span>0人</span>
+          <span>{{ `${stats.totalViewCount || 0}人` }}</span>
           <span>累计观看</span>
         </a-flex>
       </a-col>
       <a-col :span="4">
         <a-flex vertical justify="center" class="item">
-          <span>0秒</span>
+          <span>{{ durationText }}</span>
           <span>直播时长</span>
         </a-flex>
       </a-col>
@@ -35,8 +35,38 @@
 </template>
 
 <script setup>
-import { defineModel } from "vue"
+import { computed, defineModel } from "vue"
 const modalOpen = defineModel()
+const props = defineProps({
+  stats: {
+    type: Object,
+    default: () => ({
+      presentAmount: 0,
+      danMuCount: 0,
+      totalViewCount: 0,
+      liveDurationSeconds: 0,
+    }),
+  },
+})
+
+const stats = computed(() => props.stats || {})
+const presentAmountText = computed(() => {
+  const amount = Number(stats.value.presentAmount || 0)
+  return `${amount % 1 === 0 ? amount.toFixed(0) : amount.toFixed(2)}开心果`
+})
+const durationText = computed(() => {
+  const seconds = Number(stats.value.liveDurationSeconds || 0)
+  if (seconds < 60) {
+    return `${seconds}秒`
+  }
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const remainSeconds = seconds % 60
+  if (hours > 0) {
+    return `${hours}时${minutes}分${remainSeconds}秒`
+  }
+  return `${minutes}分${remainSeconds}秒`
+})
 
 const handleCancel = () => {
   modalOpen.value = false
@@ -56,7 +86,7 @@ const handleCancel = () => {
   }
   .item {
     height: 60px;
-    width: 80px;
+    width: 100px;
     span {
       display: block;
       text-align: center;

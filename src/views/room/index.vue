@@ -149,12 +149,14 @@ const handleSendGift = (item) => {
 
 <style lang="scss" scoped>
 .room-wapper {
+  --room-panel-height: 750px;
   width: 1220px;
   margin: 0 auto;
   margin-top: 20px;
 
   .room-play {
     width: 900px;
+    height: var(--room-panel-height);
 
     .room-play-header {
       height: 100px;
@@ -247,7 +249,9 @@ const handleSendGift = (item) => {
 
   .room-chat {
     width: 300px;
+    height: var(--room-panel-height);
     margin-left: 10px;
+    display: flex;
   }
 }
 

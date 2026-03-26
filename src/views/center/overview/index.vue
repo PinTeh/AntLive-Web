@@ -30,6 +30,13 @@
               <span>{{ record.messageCount || '0' }}</span>
             </a-flex>
           </template>
+          <template v-if="column.key === 'presentCount'">
+            <a-flex align="center">
+              <GiftOutlined />
+              <section style="width: 5px"></section>
+              <span>{{ record.presentCount || '0' }}</span>
+            </a-flex>
+          </template>
         </template>
       </a-table>
     </div>
@@ -37,7 +44,7 @@
 </template>
 
 <script setup>
-import { LikeOutlined, CommentOutlined } from "@ant-design/icons-vue"
+import { LikeOutlined, CommentOutlined, GiftOutlined } from "@ant-design/icons-vue"
 import liveAPI from "@/api/live"
 import { reactive, ref, computed, onMounted } from "vue"
 
@@ -136,6 +143,12 @@ const columns = reactive([
     dataIndex: "messageCount",
     key: "messageCount",
     customRender: ({ text, record, index, column }) => text || 0,
+  },
+  {
+    title: "礼物数据",
+    dataIndex: "presentCount",
+    key: "presentCount",
+    customRender: ({ text }) => text || 0,
   },
 ])
 </script>

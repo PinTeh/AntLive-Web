@@ -292,16 +292,23 @@ const close = () => {
   display: flex;
   flex-direction: column;
   position: relative;
+  flex: 1;
+  height: 710px;
+  min-height: 0;
+  overflow: hidden;
 
   .chat-top-section {
     position: relative;
     z-index: 2;
+    flex: 0 0 auto;
+    height: 180px;
   }
 
   .chat-header {
     height: 158px;
     background-color: #fff;
     padding: 12px 10px 8px;
+    box-sizing: border-box;
 
     .rank-toolbar {
       display: flex;
@@ -490,7 +497,8 @@ const close = () => {
 }
 
 .chat-main {
-  height: 442px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 
   &::-webkit-scrollbar {
@@ -504,7 +512,7 @@ const close = () => {
 }
 
 .chat-footer {
-  flex: 1;
+  flex: 0 0 auto;
   padding: 10px;
 
   .chat-box {
